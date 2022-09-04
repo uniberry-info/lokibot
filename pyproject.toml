@@ -132,6 +132,13 @@ lokiunimore = "lokiunimore.__main__:main"
 #          3.10.1  →  == 3.10.1
 
 python = "^3.10"
+Flask = "^2.2.2"
+Flask-SQLAlchemy = "^2.5.1"
+gunicorn = "^20.1.0"
+itsdangerous = "^2.1.2"
+Authlib = "^1.0.1"
+requests = "^2.28.1"
+coloredlogs = "^15.0.1"
 
 
 
