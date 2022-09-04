@@ -1,17 +1,17 @@
-# `PACKAGE_NAME`
+# `lokiunimore`
 
-You should probably update this description to reflect your project :)
+Matrix room gatekeeper bot
 
 ## Installation
 
 ```console
-$ pip install PACKAGE_NAME
+$ pip install lokiunimore
 ```
 
 ## Usage
 
 ```console
-$ PACKAGE-NAME
+$ lokiunimore
 ```
 
 ## Development

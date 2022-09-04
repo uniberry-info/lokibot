@@ -3,8 +3,8 @@ name: "Periodic analysis"
 on:
   schedule:
     # Change this in your project to a random time.
-    # Every monday at 06:09 UTC
-    - cron: "9 6 * * 1"
+    # Every monday at 09:48 UTC
+    - cron: "48 9 * * 1"
 
 jobs:
   codeql:
