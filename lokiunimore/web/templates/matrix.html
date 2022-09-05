@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title_tab %}{{ user.id }}{% endblock %}
+{% block title_main %}<code>{{ user.id }}</code>{% endblock %}
+
+{% block content %}
+    {% if user.account %}
+        <p>
+            Il tuo account Matrix è collegato all'account Studenti@Unimore:
+        </p>
+        <p class="center xl">
+            <code>{{ user.account.email }}</code>
+        </p>
+        <hr/>
+        <p>
+            Per disconnetterti, <b>abbandona</b> da Matrix la Zona Studenti.<br/>
+            <small>Attenzione: sarai rimosso anche da tutte le stanze contenute in essa!</small>
+        </p>
+    {% else %}
+        <p>
+            Il tuo account Matrix non è collegato a nessun account Studenti@Unimore.
+        </p>
+        <hr/>
+        <p>
+            Per collegare un account e <b>ottenere accesso</b> alla Zona Studenti, premi il tasto qui sotto.
+        </p>
+        <p class="center xl">
+            <a href="{{ url_for("page_matrix_link", token=token) }}" class="btn">Accedi con Google</a><br/>
+        </p>
+        <p>
+            <small>È richiesto il salvataggio di un piccolo cookie funzionale contenente il nome del tuo account che sarà eliminato al termine della procedura.</small>
+        </p>
+        <hr/>
+        <p>
+            Per eliminare completamente i tuoi dati dal database di Loki, <b>abbandona</b> da Matrix lo spazio Unimore.<br/>
+            <small>Attenzione: riunendoti allo spazio verrai nuovamente registrato!</small>
+        </p>
+    {% endif %}
+{% endblock %}

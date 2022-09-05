@@ -139,6 +139,7 @@ itsdangerous = "^2.1.2"
 Authlib = "^1.0.1"
 requests = "^2.28.1"
 coloredlogs = "^15.0.1"
+psycopg2 = "^2.9.3"
 
 
 

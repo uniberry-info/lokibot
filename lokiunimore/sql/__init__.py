@@ -16,12 +16,7 @@ class Account(Base):
 
     __tablename__ = "accounts"
 
-    id = s.Column(s.Integer, primary_key=True, autoincrement=True)
-    """
-    Surrogate SQL id of the account.
-    """
-
-    email = s.Column(s.String, nullable=False, unique=True)
+    email = s.Column(s.String, primary_key=True)
     """
     The verified email of the account.
     """
@@ -36,12 +31,7 @@ class Account(Base):
     The last name of the account owner.
     """
 
-    private = s.Column(s.Boolean, nullable=False, default=True)
-    """
-    Whether the details of this account should be kept hidden, or shown on the public listing.
-    """
-
-    matrix_users = o.relationship("MatrixUser", back_populates="user")
+    matrix_users = o.relationship("MatrixUser", back_populates="account")
     """
     The Matrix users linked to this account.
     """
@@ -69,9 +59,9 @@ class MatrixUser(Base):
     A secure token that the user can use to access their account.
     """
 
-    account_id = s.Column(s.Integer, s.ForeignKey("accounts.id"))
+    account_email = s.Column(s.String, s.ForeignKey("accounts.email"))
     """
-    If the user linked a OAuth2 account, its id.
+    If the user linked a OAuth2 account, its email.
     """
 
     account = o.relationship("Account", back_populates="matrix_users")
