@@ -8,6 +8,14 @@
     --interactive-default: #ffd400;
     --interactive-hover: #ffea80;
     --interactive-text: #000000;
+
+    /*
+    --body-background: #ffffff;
+    --body-foreground: #515254;
+    --interactive-default: #d14224;
+    --interactive-hover: #d17562;
+    --interactive-text: #ffffff;
+    */
 }
 
 body {
