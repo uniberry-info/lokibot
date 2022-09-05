@@ -5,12 +5,12 @@
 
 {% block content %}
     <p id="error-when">
-        Si è verificato un errore {{ when }}.
+        Si è verificato un errore {{ when | safe }}.
     </p>
     <p id="error-details">
-        {{ details }}
+        {{ details | safe }}
     </p>
     <p id="error-tip">
-        {{ tip }}
+        {{ tip | safe }}
     </p>
 {% endblock %}
