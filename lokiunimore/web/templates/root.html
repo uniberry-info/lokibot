@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title_tab %}Home{% endblock %}
+{% block title_main %}Home{% endblock %}
+
+{% block content %}
+    <p id="root-about">
+        <b>Loki</b> è un chat bot che regola l'accesso alla <b>Zona Studenti</b> dello spazio <a href="https://matrix.org">Matrix</a> non-ufficiale dell'Unimore.
+    </p>
+    <p id="root-why">
+        Per evitare che messaggi con contenuto potenzialmente sensibile vengano letti da soggetti che potrebbero usarli per effettuare <u>abusi di potere</u>, viene richiesta la <b>verifica delle proprie credenziali universitarie</b> a tutti gli studenti che desiderano accedere alla relativa zona.
+    </p>
+    <p id="root-index">
+        In aggiunta, il bot permette <i>opzionalmente</i> di inserire le proprie credenziali in una rubrica locale degli studenti universitari, facilitando la comunicazione in caso di necessità.
+    </p>
+    <hr/>
+    <p id="root-join">
+        Se <b>non sei ancora membro</b> dello spazio Matrix pubblico, puoi usare questo link per entrare a farne parte:
+    </p>
+    <p id="root-spacename" class="center xl">
+        <a href="https://matrix.to/#/#unimore:ryg.one?client=element.io" class="btn"><code>#unimore:ryg.one</code></a>
+    </p>
+    <p id="root-verify">
+        Se <b>sei già membro</b>, e <b>vuoi ottenere accesso alla Zona Studenti</b>, dovresti aver ricevuto un messaggio da Loki con ulteriori istruzioni:
+    </p>
+    <p id="root-botname" class="center xl">
+        <a href="https://matrix.to/#/@loki_bot:ryg.one?client=element.io" class="btn"><code>@loki_bot:ryg.one</code></a>
+    </p>
+    <p id="root-privacy">
+        Infine, se <b>hai accesso alla Zona Studenti</b>, potresti voler rivedere l'<a href="{{ url_for("page_privacy") }}">informativa sulla privacy</a>, oppure richiedere l'<a href="{{ url_for("page_delete") }}">eliminazione dei tuoi dati</a> dal bot.
+    </p>
+    <hr/>
+    <p id="root-migration">
+        Se eri <b>membro del gruppo Telegram non-ufficiale</b>, potresti voler vedere <a href="{{ url_for("page_migration") }}">perchè stiamo cambiando chat</a>.
+    </p>
+
+{% endblock %}

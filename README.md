@@ -1,6 +1,6 @@
 # `lokiunimore`
 
-Matrix room gatekeeper bot
+Matrix room gatekeeper bot for the unofficial Unimore space
 
 ## Installation
 

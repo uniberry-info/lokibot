@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title_tab %}Collegamento account{% endblock %}
+{% block title_main %}Collegamento account{% endblock %}
+
+{% block content %}
+    <p id="link-connection">
+        Stai per collegare il tuo <b>account Unimore</b> all'account Matrix:
+    </p>
+    <p id="link-destination">
+        <code>{{ matrix }}</code>
+    </p>
+    <p id="link-privacy">
+        Proseguendo, acconsenti all'uso dei tuoi dati secondo l'<a href="{{ url_for("page_privacy") }}">informativa sulla privacy</a> di Loki.<br>
+        <small>Leggila, è corta e semplice da capire!</small>
+    </p>
+    <p id="link-button">
+        <a class="btn btn-xxl" href="{{ url_for("page_oauth") }}">
+            Connetti
+        </a>
+    </p>
+{% endblock %}

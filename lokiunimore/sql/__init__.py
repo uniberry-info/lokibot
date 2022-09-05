@@ -38,7 +38,7 @@ class Authorization(Base):
 
     __tablename__ = "authorizations"
 
-    user_id = s.Column(s.String, s.ForeignKey("users.id"), nullable=False)
+    user_id = s.Column(s.String, s.ForeignKey("users.id"), primary_key=True)
     first_name = s.Column(s.String, nullable=False)
     last_name = s.Column(s.String, nullable=False)
     email = s.Column(s.String, nullable=False)
@@ -48,6 +48,7 @@ class Authorization(Base):
 
 
 __all__ = (
+    "Base",
     "User",
     "Token",
     "Authorization",

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="it">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% block title_tab %}{% endblock %} - Loki</title>
+        <link rel="stylesheet" href="{{ url_for("static", filename="unimore.css") }}"/>
+    </head>
+    <body>
+        <hgroup>
+            <h1 id="title-loki">
+                <a href="{{ url_for("page_root") }}">Loki</a>
+            </h1>
+            <h2 id="title-main">
+                {% block title_main %}{% endblock %}
+            </h2>
+        </hgroup>
+        <main id="content">
+            {% block content %}{% endblock %}
+        </main>
+    </body>
+</html>
