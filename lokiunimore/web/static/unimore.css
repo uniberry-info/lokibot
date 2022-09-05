@@ -3,19 +3,11 @@
 }
 
 :root {
-    --body-background: #d14224;
+    --body-background: #260909;
     --body-foreground: #ffffff;
-    --interactive-default: #ffd400;
-    --interactive-hover: #ffea80;
-    --interactive-text: #000000;
-
-    /*
-    --body-background: #ffffff;
-    --body-foreground: #515254;
     --interactive-default: #d14224;
-    --interactive-hover: #d17562;
+    --interactive-hover: #d17a69;
     --interactive-text: #ffffff;
-    */
 }
 
 body {
@@ -32,7 +24,6 @@ hgroup > *:not(:first-child) {
 hgroup > *:not(:last-child) {
     margin-bottom: 0;
 }
-
 
 h1, h2, h3, h4, h5, h6, .center {
     text-align: center;
