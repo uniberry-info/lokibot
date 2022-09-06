@@ -1,28 +1,21 @@
-import asyncio
-import os
 import nio
-import socket
 import logging
 from lokiunimore import config
+from lokiunimore.utils import no_op
+from lokiunimore.matrix.extensions import ExtendedClient
 
 log = logging.getLogger(__name__)
 
 
 # IDEA ignores the annotations of decorators <https://youtrack.jetbrains.com/issue/PY-53583/Decorator-return-type-ignored>
 # noinspection PyTypeChecker
-client = nio.AsyncClient(
-    homeserver=config.MATRIX_HOMESERVER,
-    user=config.MATRIX_USERNAME,
-    device_id=f"Loki [Bot] @ {socket.gethostname()}",
+client = ExtendedClient(
+    homeserver=config.MATRIX_HOMESERVER.__wrapped__,
+    user=config.MATRIX_USERNAME.__wrapped__,
 )
 """
 The bot's Matrix client, powered by :mod:`nio`.
 """
-
-
-async def get_room_hierarchy(room_id: str):
-    # noinspection PyProtectedMember
-    await client._send(..., "GET", nio.Api._build_path(["rooms", room_id, "hierarchy"]))
 
 
 async def on_join_parent_space(user_id: str):
@@ -40,8 +33,28 @@ async def on_leave_parent_space(user_id: str):
     Callback for when someone leaves the monitored "parent" space.
     """
 
+    # TODO: Determine the rooms where the change should be applied in
     # TODO: Ensure they are not in the child space
     # TODO: Delete from the database
+
+
+async def on_ban_parent_space(user_id: str):
+    """
+    Callback for when someone is banned from the monitored "parent" space.
+    """
+
+    # TODO: Determine the rooms where the change should be applied in
+    # TODO: Propagate the ban downwards
+    # TODO: Delete from the database
+
+
+async def on_power_parent_space(power: nio.PowerLevels):
+    """
+    Callback for when the power levels of the monitored "parent" space are changed.
+    """
+
+    # TODO: Determine the rooms where the change should be applied in
+    # TODO: Propagate the change downwards
 
 
 async def on_join_child_space(user_id: str):
@@ -59,15 +72,10 @@ async def on_leave_child_space(user_id: str):
     Callback for when someone leaves the monitored "child" space.
     """
 
+    # TODO: Determine the rooms where the change should be applied in
+    # TODO: Ensure they are not in the child space
     # TODO: Unlink account from the database
     # TODO: Send notification message
-
-
-async def no_op():
-    """
-    Do nothing, but as a coroutine.
-    """
-    pass
 
 
 async def on_join(room: nio.MatrixRoom, event: nio.RoomMemberEvent):
@@ -75,10 +83,10 @@ async def on_join(room: nio.MatrixRoom, event: nio.RoomMemberEvent):
     Callback for when someone joins a room.
     """
 
-    if room.room_id == config.MATRIX_PARENT_SPACE:
+    if room.room_id == config.MATRIX_PARENT_SPACE_ID:
         await on_join_parent_space(user_id=event.state_key)
 
-    if room.room_id == config.MATRIX_CHILD_SPACE:
+    if room.room_id == config.MATRIX_CHILD_SPACE_ID:
         await on_join_child_space(user_id=event.state_key)
 
 
@@ -87,11 +95,20 @@ async def on_leave(room: nio.MatrixRoom, event: nio.RoomMemberEvent):
     Callback for when someone leaves a room.
     """
 
-    if room.room_id == config.MATRIX_PARENT_SPACE:
+    if room.room_id == config.MATRIX_PARENT_SPACE_ID:
         await on_leave_parent_space(user_id=event.state_key)
 
-    if room.room_id == config.MATRIX_CHILD_SPACE:
+    if room.room_id == config.MATRIX_CHILD_SPACE_ID:
         await on_leave_child_space(user_id=event.state_key)
+
+
+async def on_ban(room: nio.MatrixRoom, event: nio.RoomMemberEvent):
+    """
+    Callback for when someone is banned from a room.
+    """
+
+    if room.room_id == config.MATRIX_PARENT_SPACE_ID:
+        await on_ban_parent_space(user_id=event.state_key)
 
 
 ON_MEMBER_CALLBACKS = {
@@ -125,7 +142,7 @@ async def on_power(room: nio.MatrixRoom, event: nio.Event):
     # Filters allow us to determine the event type in a better way
     event: nio.PowerLevelsEvent
 
-    if room.room_id == config.MATRIX_PARENT_SPACE:
+    if room.room_id == config.MATRIX_PARENT_SPACE_ID:
         await on_power_parent_space(event.power_levels)
 
 

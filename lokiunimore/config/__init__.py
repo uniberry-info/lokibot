@@ -23,6 +23,14 @@ def MATRIX_USERNAME(val: str) -> str:
 
 
 @config.required()
+def MATRIX_SHARED_SECRET(val: str) -> str:
+    """
+    The shared secret of the server to use to login as a certain account.
+    """
+    return val
+
+
+@config.required()
 def MATRIX_PARENT_SPACE_ID(val: str) -> str:
     """
     The internal ID of the Matrix space to monitor for new joins.
@@ -125,3 +133,8 @@ def EMAIL_REGEX(val: str) -> re.Pattern:
     For example, `.+@studenti[.]unimore[.]it`
     """
     return re.compile(val)
+
+
+__all__ = (
+
+)
