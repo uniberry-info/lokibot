@@ -1,4 +1,3 @@
-import os
 import re
 import flask
 import flask_sqlalchemy
@@ -7,6 +6,7 @@ import werkzeug.exceptions
 import authlib.integrations.flask_client
 import authlib.integrations.base_client
 
+from lokiunimore import config
 from lokiunimore import sql
 
 
@@ -16,7 +16,10 @@ The main :mod:`flask` application object.
 """
 
 # Get config from the environment
-app.config.update(**os.environ)
+app.config.update({
+    **config.config.proxies.resolve(),
+    "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+})
 
 rp_app = werkzeug.middleware.proxy_fix.ProxyFix(app=app, x_for=1, x_proto=1, x_host=1, x_port=0, x_prefix=0)
 """
@@ -38,11 +41,11 @@ OAuth2 :mod:`flask` extension installed on :data:`.app`.
 
 # Register the OAuth2 provider
 oauth.register(
-    name="google",
-    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
-    api_base_url="https://www.googleapis.com/",
+    name="oauth",
+    server_metadata_url=config.OAUTH_OPENID_CONFIGURATION,
+    api_base_url=config.OAUTH_API_BASE_URL,
     client_kwargs={
-        "scope": "email profile openid",
+        "scope": config.OAUTH_SCOPES
     },
 )
 
@@ -64,13 +67,13 @@ def page_matrix_profile(token):
 def page_matrix_link(token):
     db.session.query(sql.MatrixUser).filter_by(token=token).first_or_404()
     flask.session["matrix_token"] = token
-    return oauth.google.authorize_redirect(flask.url_for("page_oauth_authorize", _external=True))
+    return oauth.oauth.authorize_redirect(flask.url_for("page_oauth_authorize", _external=True))
 
 
 @app.route("/authorize")
 def page_oauth_authorize():
     try:
-        token = oauth.google.authorize_access_token()
+        token = oauth.oauth.authorize_access_token()
     except werkzeug.exceptions.BadRequestKeyError:
         return flask.render_template(
             "error.html",
@@ -87,9 +90,9 @@ def page_oauth_authorize():
         )
 
     # Not sure of why the nonce is now required or if I'm using it correctly
-    google_account = oauth.google.parse_id_token(token=token, nonce=token["userinfo"]["nonce"])
+    account = oauth.oauth.parse_id_token(token=token, nonce=token["userinfo"]["nonce"])
 
-    if not google_account.email_verified:
+    if not account.email_verified:
         return flask.render_template(
             "error.html",
             when="""durante la verifica del tuo account Google""",
@@ -97,7 +100,8 @@ def page_oauth_authorize():
             tip="""Probabilmente hai effettuato l'accesso con l'account Google sbagliato.<br>Effettua il <a href="https://accounts.google.com/logout">logout da tutti i tuoi account Google</a> e riprova!"""
         ), 403
 
-    if not re.match(r"(.+)@studenti[.]unimore[.]it", google_account.email):
+    # noinspection PyTypeChecker
+    if not re.match(config.EMAIL_REGEX, account.email):
         return flask.render_template(
             "error.html",
             when="""durante la verifica del tuo account Google""",
@@ -106,9 +110,9 @@ def page_oauth_authorize():
         ), 403
 
     local_account = db.session.merge(sql.Account(
-        email=google_account.email,
-        first_name=google_account.given_name,
-        last_name=google_account.family_name,
+        email=account.email,
+        first_name=account.given_name,
+        last_name=account.family_name,
     ))
 
     if matrix_token := flask.session.get("matrix_token"):
