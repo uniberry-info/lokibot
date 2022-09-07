@@ -1,4 +1,4 @@
-async def no_op():
+async def no_op(*_, **__):
     """
     Do nothing, but as a coroutine.
     """

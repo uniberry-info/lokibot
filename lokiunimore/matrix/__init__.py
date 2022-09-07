@@ -146,5 +146,26 @@ async def on_power(room: nio.MatrixRoom, event: nio.Event):
         await on_power_parent_space(event.power_levels)
 
 
+async def on_invite(room: nio.MatrixRoom, event: nio.Event):
+    """
+    Callback for when a :class:`nio.InviteMemberEvent` is received.
+    """
+
+    # Filters allow us to determine the event type in a better way
+    event: nio.InviteMemberEvent
+
+    log.debug("INVITO!!!")
+
+    if event.state_key == client.user:
+        log.info("FOR ME? →←")
+        await client.join(room.room_id)
+
+
+async def on_message(room: nio.MatrixRoom, event: nio.Event):
+    log.debug(f"{room.canonical_alias or room.room_id}: {event}")
+
+
 client.add_event_callback(on_member, nio.RoomMemberEvent)
 client.add_event_callback(on_power, nio.PowerLevelsEvent)
+client.add_event_callback(on_invite, nio.InviteMemberEvent)
+client.add_event_callback(on_message, nio.RoomMessageText)
