@@ -22,6 +22,18 @@ def MATRIX_USERNAME(val: str) -> str:
     return val
 
 
+@config.optional()
+def MATRIX_STORE_PATH(val: str | None) -> str:
+    """
+    The path where Matrix session data should be stored in.
+    If it doesn't exist, it will be created before starting the bot.
+    Defaults to `./session`.
+    """
+    if not val:
+        return "./session"
+    return val
+
+
 @config.required()
 def MATRIX_SHARED_SECRET(val: str) -> str:
     """
@@ -133,8 +145,3 @@ def EMAIL_REGEX(val: str) -> re.Pattern:
     For example, `.+@studenti[.]unimore[.]it`
     """
     return re.compile(val)
-
-
-__all__ = (
-
-)

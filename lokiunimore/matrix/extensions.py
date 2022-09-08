@@ -1,9 +1,10 @@
 """
 This module defines some extensions for :mod:`nio`, as it is currently missing some methods that :mod:`lokiunimore` desperately needs.
 """
-
+import asyncio
 import dataclasses
-
+import pathlib
+import json
 import aiohttp
 import nio
 import logging
@@ -175,3 +176,73 @@ class ExtendedClient(nio.AsyncClient):
         log.debug(f"Successfully retrieved a hierarchy of {len(rooms)} rooms!")
 
         return rooms
+
+    def dump_state(self, path: pathlib.Path):
+        """
+        Store important things that aren't already being stored in the :attr:`nio.AsyncClient.store_path` in the given file.
+
+        :param path: The path to store the client state in.
+        """
+        log.debug(f"Dumping state to {path}...")
+        with open(path, "w") as file:
+            data = dict()
+
+            data["next_batch"] = self.next_batch
+            log.debug(f"Next time, will resume syncing from batch {self.next_batch}")
+
+            json.dump(data, file)
+
+    async def _dump_state_regularly(self, timeout: int):
+        """
+        Run :meth:`.dump_state` every ``timeout`` seconds.
+
+        :param timeout: The seconds between two calls to ``dump_state``.
+        """
+        store_path = pathlib.Path(self.store_path)
+        state_path = store_path.joinpath("state.json")
+
+        while True:
+            await asyncio.sleep(timeout)
+            self.dump_state(state_path)
+
+    def load_state(self, path: pathlib.Path):
+        """
+        Load important things that aren't already being stored in the :attr:`~nio.AsyncClient.store_path` from the given file.
+
+        :param path: The path the client state is stored in.
+        """
+        log.debug(f"Loading state from {path}...")
+        with open(path) as file:
+            data = json.load(file)
+
+            self.next_batch = data["next_batch"]
+            log.debug(f"Will start syncing from stored batch {self.next_batch}")
+
+    async def sync_forever(self, *args, **kwargs):
+        """
+        Like :meth:`~nio.AsyncClient.sync_forever`, but with support for all the extensions of :class:`.ExtendedClient`.
+
+        .. seealso:: :meth:`~nio.AsyncClient.sync_forever`
+        """
+
+        store_path = pathlib.Path(self.store_path)
+        state_path = store_path.joinpath("state.json")
+        loop = asyncio.get_event_loop()
+
+        log.debug(f"Ensuring {store_path} exists...")
+        store_path.mkdir(parents=True, exist_ok=True)
+
+        try:
+            self.load_state(state_path)
+        except FileNotFoundError:
+            pass
+
+        dump_task = loop.create_task(self._dump_state_regularly(300_000))
+
+        log.debug("Starting to sync...")
+        try:
+            await super().sync_forever(*args, **kwargs)
+        finally:
+            log.debug("Stopping to sync...")
+            dump_task.cancel("Client stopped syncing.")
+            self.dump_state(state_path)
