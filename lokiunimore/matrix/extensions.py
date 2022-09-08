@@ -246,3 +246,29 @@ class ExtendedClient(nio.AsyncClient):
             log.debug("Stopping to sync...")
             dump_task.cancel("Client stopped syncing.")
             self.dump_state(state_path)
+
+    async def pm_slide(self, user_id: str) -> str:
+        """
+        Find the first available private message room with the given user, or create one if none exist.
+
+        :param user_id: The user to message.
+        :returns: The room id of the created room.
+        """
+
+        log.debug(f"Sliding into {user_id}'s PMs...")
+
+        for room in self.rooms.values():
+            is_dm = room.tags.get("m.direct")
+            is_two_person_group = room.is_group and len(room.users) == 2
+            has_user = user_id in room.users.keys()
+            if (is_dm or is_two_person_group) and has_user:
+                log.debug(f"Found {user_id}'s PM room!")
+                return room.room_id
+        else:
+            log.debug(f"Creating new room for {user_id}'s PMs...")
+            response = await self.room_create(invite=[user_id], is_direct=True)
+            if isinstance(response, nio.RoomCreateResponse):
+                log.debug(f"Room created successfully!")
+                return response.room_id
+            else:
+                raise Exception("Failed to slide into an user's PMs.")

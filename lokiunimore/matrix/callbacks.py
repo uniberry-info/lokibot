@@ -22,18 +22,18 @@ async def on_member(room: nio.MatrixRoom, event: nio.Event):
 
     elif event.membership == "join":
         # If somebody joins the parent space, notify them of my presence
-        if event.source == MATRIX_PARENT_SPACE_ID:
+        if room.room_id == MATRIX_PARENT_SPACE_ID:
             await notify_parent_joiner(event.state_key)
         # If somebody joins the child space, notify them of the successful login
-        elif event.source == MATRIX_CHILD_SPACE_ID:
+        elif room.room_id == MATRIX_CHILD_SPACE_ID:
             await notify_child_joiner(event.state_key)
 
     elif event.membership == "leave":
         # If somebody leaves the parent space, remove them from all subrooms, delete their account, and finally notify them
-        if event.source == MATRIX_PARENT_SPACE_ID:
+        if room.room_id == MATRIX_PARENT_SPACE_ID:
             await notify_parent_leaver(event.state_key)
         # If somebody leaves the child space, remove them from all subrooms, delete their linking, and finally notify them
-        elif event.source == MATRIX_CHILD_SPACE_ID:
+        elif room.room_id == MATRIX_CHILD_SPACE_ID:
             await notify_child_leaver(event.state_key)
 
     elif event.membership == "ban":
@@ -51,7 +51,10 @@ async def join_when_invited(room: nio.MatrixRoom):
 
 async def notify_parent_joiner(user_id: str):
     log.info(f"User joined parent space: {user_id}")
-    # TODO
+    room_id = await client.pm_slide(user_id)
+    _r = await client.room_send(room_id, "m.notice", {
+        "body": "Benvenuto allo spazio spaziale!",
+    })
     log.info(f"Notified joiner of parent space: {user_id}")
 
 
