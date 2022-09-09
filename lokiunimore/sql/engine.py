@@ -1,5 +1,10 @@
-import sqlalchemy.orm
-from lokiunimore.config import SQLALCHEMY_DATABASE_URI
+import sqlalchemy.engine
+from lokiunimore.config import SQLALCHEMY_DATABASE_URL
 
 
-engine = sqlalchemy.create_engine(url=SQLALCHEMY_DATABASE_URI.__wrapped__)
+engine = sqlalchemy.engine.create_engine(SQLALCHEMY_DATABASE_URL.__wrapped__)
+
+
+__all__ = (
+    "engine",
+)
