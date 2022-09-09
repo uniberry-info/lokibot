@@ -5,12 +5,18 @@ import asyncio
 import dataclasses
 import pathlib
 import json
+from typing import Union, Tuple, Any, Optional, TypeVar, Type
+
+T = TypeVar("T")
+
 import aiohttp
 import nio
 import logging
 import hashlib
 import hmac
 
+from nio import DataProvider
+from nio.crypto import AsyncDataT
 
 log = logging.getLogger(__name__)
 
@@ -54,12 +60,14 @@ class PublicRoomsChunkPartialArray:
     def from_dict(cls, parsed_dict): return cls(**parsed_dict)
 
 
-@dataclasses.dataclass
-class NonceContainer:
-    nonce: str
+class RequestError(Exception):
+    """
+    A request to the Matrix homeserver failed.
+    """
 
-    @classmethod
-    def from_dict(cls, parsed_dict): return cls(**parsed_dict)
+    def __init__(self, response: nio.responses.ErrorResponse):
+        super().__init__()
+        self.response: nio.responses.ErrorResponse = response
 
 
 # noinspection PyProtectedMember
@@ -272,3 +280,38 @@ class ExtendedClient(nio.AsyncClient):
                 return response.room_id
             else:
                 raise Exception("Failed to slide into an user's PMs.")
+
+    def _send(
+        self,
+        response_class: Type[T],
+        method: str,
+        path: str,
+        data: Union[None, str, AsyncDataT] = None,
+        response_data: Optional[Tuple[Any, ...]] = None,
+        content_type: Optional[str] = None,
+        trace_context: Optional[Any] = None,
+        data_provider: Optional[DataProvider] = None,
+        timeout: Optional[float] = None,
+        content_length: Optional[int] = None,
+    ) -> T:
+        """
+        Override :meth:`nio.client.AsyncClient._send` with something that actually raises errors instead of returning them. (Why!?)
+        """
+        result = super()._send(
+            response_class=response_class,
+            method=method,
+            path=path,
+            data=data,
+            response_data=response_data,
+            content_type=content_type,
+            trace_context=trace_context,
+            data_provider=data_provider,
+            timeout=timeout,
+            content_length=content_length,
+        )
+
+        if isinstance(result, nio.responses.ErrorResponse):
+            log.warning(f"{method} {path} errored: {result!r}")
+            raise RequestError(result)
+
+        return result
