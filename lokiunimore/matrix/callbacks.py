@@ -1,6 +1,7 @@
 import logging
 import nio
 from lokiunimore.matrix.client import client
+from lokiunimore.matrix.extensions import RequestError
 from lokiunimore.config import MATRIX_PARENT_SPACE_ID, MATRIX_CHILD_SPACE_ID, LOKI_BASE_URL
 import sqlalchemy.orm
 from lokiunimore.sql.engine import engine
@@ -111,15 +112,131 @@ async def notify_child_joiner(user_id: str):
     log.info(f"Notified joiner of child space: {user_id}")
 
 
+GOODBYE_MESSAGE_TEXT = """
+Hai abbandonato lo spazio Matrix dell'Unimore, quindi ho cancellato i tuoi dati dal mio database; a breve verrai inoltre rimosso da tutte le stanze dello spazio.
+
+Se cambierai idea in futuro, potrai sempre rientrare allo stesso indirizzo!
+
+Abbi un buon proseguimento di giornata! :)
+"""
+
+GOODBYE_MESSAGE_HTML = """
+<p>
+    Hai abbandonato lo spazio Matrix dell'Unimore, quindi ho cancellato i tuoi dati dal mio database; a breve verrai inoltre rimosso da tutte le stanze dello spazio.
+</p>
+<p>
+    Se cambierai idea in futuro, potrai sempre rientrare allo stesso indirizzo!
+</p>
+<p>
+    Abbi un buon proseguimento di giornata! :)
+</p>
+"""
+
+
 async def notify_parent_leaver(user_id: str):
     log.info(f"User left parent space: {user_id}")
-    # TODO
+
+    log.debug(f"Deleting MatrixUser for: {user_id}")
+    with sqlalchemy.orm.Session(bind=engine) as session:
+        session: sqlalchemy.orm.Session
+        matrix_user: MatrixUser = session.query(MatrixUser).get(user_id)
+        if matrix_user is None:
+            log.warning(f"User left parent space without a record in the db: {user_id}")
+        else:
+            if matrix_user.account is not None and len(matrix_user.account.matrix_users) == 1:
+                session.delete(matrix_user.account)
+            session.delete(matrix_user)
+            session.commit()
+
+    room_id = await client.pm_slide(user_id)
+    await client.room_send(room_id, "m.room.message", {
+        "msgtype": "m.notice",
+        "format": "org.matrix.custom.html",
+        "formatted_body": GOODBYE_MESSAGE_HTML,
+        "body": GOODBYE_MESSAGE_TEXT,
+    })
+
+    hierarchy = await client.room_hierarchy(MATRIX_PARENT_SPACE_ID, max_depth=9, suggested_only=False)
+    for room in hierarchy:
+        room_id = room["room_id"]
+
+        log.debug(f"Removing parent leaver {user_id} from: {room_id}")
+        try:
+            await client.room_kick(room_id=room_id, user_id=user_id, reason="Left parent space")
+        except RequestError as e:
+            log.warning(f"Could not remove parent leaver {user_id} from {room_id}: {e}")
+        else:
+            log.info(f"Removed parent leaver {user_id} from: {room_id}")
+
     log.info(f"Notified leaver of parent space: {user_id}")
+
+
+UNLINK_MESSAGE_TEXT = """
+Hai abbandonato l'Area Studenti dello spazio Unimore, quindi ho scollegato il tuo account Studenti@Unimore dal tuo account Matrix.
+
+Se cambierai idea in futuro, potrai sempre essere riaggiunto all'Area Studenti ricollegando il tuo account:
+{base_url}/matrix/{token}
+
+Abbi un buon proseguimento di giornata! :)
+"""
+
+UNLINK_MESSAGE_HTML = """
+<p>
+    Hai abbandonato l'Area Studenti dello spazio Unimore, quindi ho scollegato il tuo account Studenti@Unimore dal tuo account Matrix.
+</p>
+<p>
+    Se cambierai idea in futuro, potrai sempre essere riaggiunto all'Area Studenti <a href="{base_url}/matrix/{token}">ricollegando il tuo account</a>!
+</p>
+<p>
+    Abbi un buon proseguimento di giornata! :)
+</p>
+"""
 
 
 async def notify_child_leaver(user_id: str):
     log.info(f"User left child space: {user_id}")
-    # TODO
+
+    log.debug(f"Unlinking MatrixUser for: {user_id}")
+    with sqlalchemy.orm.Session(bind=engine) as session:
+        session: sqlalchemy.orm.Session
+        matrix_user: MatrixUser = session.query(MatrixUser).get(user_id)
+        if matrix_user is None:
+            log.warning(f"User left child space without a record in the db: {user_id}")
+            return
+        elif matrix_user.account is None:
+            log.warning(f"User left child space without a link in the db: {user_id}")
+            token = matrix_user.token
+        else:
+            if len(matrix_user.account.matrix_users) == 1:
+                session.delete(matrix_user.account)
+            matrix_user.account = None
+            session.commit()
+            token = matrix_user.token
+
+    room_id = await client.pm_slide(user_id)
+    formatting = dict(
+        base_url=LOKI_BASE_URL,
+        token=token,
+    )
+    await client.room_send(room_id, "m.room.message", {
+        "msgtype": "m.notice",
+        "format": "org.matrix.custom.html",
+        "formatted_body": UNLINK_MESSAGE_HTML.format(**formatting),
+        "body": UNLINK_MESSAGE_TEXT.format(**formatting),
+    })
+
+    hierarchy = await client.room_hierarchy(MATRIX_CHILD_SPACE_ID, max_depth=9, suggested_only=False)
+    for room in hierarchy:
+        room_id = room["room_id"]
+
+        log.debug(f"Removing child leaver {user_id} from: {room_id}")
+        try:
+            await client.room_kick(room_id=room_id, user_id=user_id, reason="Left child space")
+        except RequestError as e:
+            log.warning(f"Could not remove child leaver {user_id} from {room_id}: {e}")
+        else:
+            log.info(f"Removed child leaver {user_id} from: {room_id}")
+
     log.info(f"Notified leaver of child space: {user_id}")
 
 

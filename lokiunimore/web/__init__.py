@@ -6,7 +6,7 @@ import werkzeug.exceptions
 import authlib.integrations.flask_client
 import authlib.integrations.base_client
 
-from lokiunimore.config import config, OAUTH_OPENID_CONFIGURATION, OAUTH_API_BASE_URL, OAUTH_SCOPES
+from lokiunimore.config import config, OAUTH_OPENID_CONFIGURATION, OAUTH_API_BASE_URL, OAUTH_SCOPES, EMAIL_REGEX
 from lokiunimore.sql.tables import Base as TableDeclarativeBase
 from lokiunimore.sql.tables import Account, MatrixUser
 
@@ -102,7 +102,7 @@ def page_oauth_authorize():
         ), 403
 
     # noinspection PyTypeChecker
-    if not re.match(config.EMAIL_REGEX, account.email):
+    if not re.match(EMAIL_REGEX, account.email):
         return flask.render_template(
             "error.html",
             when="""durante la verifica del tuo account Google""",

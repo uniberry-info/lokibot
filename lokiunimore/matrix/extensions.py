@@ -2,7 +2,6 @@
 This module defines some extensions for :mod:`nio`, as it is currently missing some methods that :mod:`lokiunimore` desperately needs.
 """
 import asyncio
-import dataclasses
 import pathlib
 import json
 from typing import Union, Tuple, Any, Optional, TypeVar, Type
@@ -19,45 +18,6 @@ from nio import DataProvider
 from nio.crypto import AsyncDataT
 
 log = logging.getLogger(__name__)
-
-
-@dataclasses.dataclass
-class StrippedStateEvent:
-    content: dict
-    origin_server_ts: int
-    sender: str
-    state_key: str
-    type: str
-
-    @classmethod
-    def from_dict(cls, parsed_dict): return cls(**parsed_dict)
-
-
-@dataclasses.dataclass
-class PublicRoomsChunk:
-    avatar_url: str
-    canonical_alias: str
-    children_state: list[StrippedStateEvent]
-    guest_can_join: bool
-    join_rule: str
-    name: str
-    num_joined_members: str
-    room_id: str
-    room_type: str
-    topic: str
-    world_readable: bool
-
-    @classmethod
-    def from_dict(cls, parsed_dict): return cls(**parsed_dict)
-
-
-@dataclasses.dataclass
-class PublicRoomsChunkPartialArray:
-    next_batch: str
-    rooms: list[PublicRoomsChunk]
-
-    @classmethod
-    def from_dict(cls, parsed_dict): return cls(**parsed_dict)
 
 
 class RequestError(Exception):
@@ -85,6 +45,8 @@ class ExtendedClient(nio.AsyncClient):
         :param displayname: The displayname of the user to register.
         :param password: The password of the user to register.
         :raises aiohttp.ClientResponseError: If a request is not successful.
+
+        .. note:: ``shared_secret`` is not the same shared secret of :meth:`.login_with_shared_secret`.
         """
 
         log.debug(f"Registering {username} with a shared secret...")
@@ -125,6 +87,8 @@ class ExtendedClient(nio.AsyncClient):
         Given a shared secret, perform a login via `com.devture.shared_secret_auth <https://github.com/devture/matrix-synapse-shared-secret-auth>`_.
 
         :param shared_secret: The shared secret to login with.
+
+        .. note:: ``shared_secret`` is not the same shared secret of :meth:`.register_with_shared_secret`.
         """
 
         log.debug(f"Logging in as {self.user} with a shared secret...")
@@ -146,7 +110,7 @@ class ExtendedClient(nio.AsyncClient):
 
         log.debug(f"Login successful!")
 
-    async def get_room_hierarchy(self, room_id: str, max_depth: int, suggested_only: bool) -> list[PublicRoomsChunk]:
+    async def room_hierarchy(self, room_id: str, max_depth: int, suggested_only: bool) -> list[dict]:
         """
         Given a space, get the room hierarchy.
 
@@ -156,22 +120,26 @@ class ExtendedClient(nio.AsyncClient):
         :return: 
         """
 
-        log.debug(f"Getting room hierarchy for {room_id!r}...")
+        log.debug(f"Getting room hierarchy for: {room_id!r}")
 
         current = None
         rooms = []
 
         while True:
+            path = ["rooms", room_id, "hierarchy"]
+            query = {
+                "max_depth": str(max_depth),
+                "suggested_only": str(suggested_only).lower(),
+            }
+            if current:
+                query["from"] = current
+
             result: aiohttp.ClientResponse = await self.send(
                 "GET",
-                nio.Api._build_path(
-                    ["rooms", room_id, "hierarchy"],
-                    {
-                        "max_depth": max_depth,
-                        "suggested_only": suggested_only,
-                        "from": current
-                    }
-                )
+                nio.Api._build_path(path, query, base_path="/_matrix/client/v1"),
+                headers={
+                    "Authorization": f"Bearer {self.access_token}"
+                }
             )
             result: dict = await result.json()
 
@@ -253,7 +221,7 @@ class ExtendedClient(nio.AsyncClient):
         finally:
             log.debug("Stopping to sync...")
             dump_task.cancel("Client stopped syncing.")
-            # FIXME: self.dump_state(state_path)
+            self.dump_state(state_path)
 
     async def pm_slide(self, user_id: str) -> str:
         """
@@ -266,17 +234,19 @@ class ExtendedClient(nio.AsyncClient):
         log.debug(f"Sliding into {user_id}'s PMs...")
 
         for room in self.rooms.values():
-            is_dm = room.tags.get("m.direct")
-            is_two_person_group = room.is_group and len(room.users) == 2
-            has_user = user_id in room.users.keys()
-            if (is_dm or is_two_person_group) and has_user:
-                log.debug(f"Found {user_id}'s PM room!")
+            is_dm = "m.direct" in room.tags
+            is_group = room.is_group
+            has_two_users = len(room.users) + len(room.invited_users) == 2
+            contains_user_id = user_id in room.users.keys() or user_id in room.invited_users.keys()
+
+            if (is_dm or is_group) and has_two_users and contains_user_id:
+                log.debug(f"Found PM room for: {user_id}")
                 return room.room_id
         else:
-            log.debug(f"Creating new room for {user_id}'s PMs...")
+            log.debug(f"Creating new PM room for: {user_id}")
             response = await self.room_create(invite=[user_id], is_direct=True)
             if isinstance(response, nio.RoomCreateResponse):
-                log.debug(f"Room created successfully!")
+                log.info(f"Created new PM room for: {user_id}")
                 return response.room_id
             else:
                 raise Exception("Failed to slide into an user's PMs.")
