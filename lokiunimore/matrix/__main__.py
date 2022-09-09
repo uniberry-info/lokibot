@@ -17,7 +17,6 @@ async def main():
 
 
 async def cleanup():
-    await client.pm_slide("@steffo:ryg.one")
     await client.logout()
 
 

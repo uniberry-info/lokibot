@@ -145,3 +145,14 @@ def EMAIL_REGEX(val: str) -> re.Pattern:
     For example, `.+@studenti[.]unimore[.]it`
     """
     return re.compile(val)
+
+
+@config.required()
+def LOKI_BASE_URL(val: str) -> str:
+    """
+    The base URL where the Loki web server is accessible at.
+    Should start with the protocol and not have a trailing slash.
+    """
+    if val.endswith("/"):
+        raise ValueError("Should not end with a trailing slash.")
+    return val

@@ -253,7 +253,7 @@ class ExtendedClient(nio.AsyncClient):
         finally:
             log.debug("Stopping to sync...")
             dump_task.cancel("Client stopped syncing.")
-            self.dump_state(state_path)
+            # FIXME: self.dump_state(state_path)
 
     async def pm_slide(self, user_id: str) -> str:
         """

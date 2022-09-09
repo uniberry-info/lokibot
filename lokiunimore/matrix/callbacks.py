@@ -1,7 +1,10 @@
 import logging
 import nio
 from lokiunimore.matrix.client import client
-from lokiunimore.config import MATRIX_PARENT_SPACE_ID, MATRIX_CHILD_SPACE_ID
+from lokiunimore.config import MATRIX_PARENT_SPACE_ID, MATRIX_CHILD_SPACE_ID, LOKI_BASE_URL
+import sqlalchemy.orm
+from lokiunimore.sql.engine import engine
+from lokiunimore.sql.tables import MatrixUser
 
 log = logging.getLogger(__name__)
 
@@ -49,12 +52,56 @@ async def join_when_invited(room: nio.MatrixRoom):
     log.info(f"Accepted invite to: {room.room_id}")
 
 
+WELCOME_MESSAGE_TEXT = """
+Benvenuto allo spazio Matrix dell'Unimore!
+
+Sono {username_text}, il bot buttafuori che verifica le credenziali degli utenti che entrano e permette loro di accedere alle rispettive aree.
+
+Se sei uno studente, puoi ottenere accesso all'Area Studenti verificando la tua identità:
+{base_url}/matrix/{token}
+"""
+
+WELCOME_MESSAGE_HTML = """
+<p>
+    Benvenuto allo spazio Matrix dell'Unimore!
+</p>
+<p>
+    Sono {username_html}, il bot buttafuori che verifica le credenziali degli utenti che entrano e permette loro di accedere alle rispettive aree.
+</p>
+<p>
+    Se sei uno studente, puoi ottenere accesso all'Area Studenti <a href="{base_url}/matrix/{token}">verificando la tua identità</a>!
+</p>
+"""
+
+
 async def notify_parent_joiner(user_id: str):
     log.info(f"User joined parent space: {user_id}")
+
+    log.debug(f"Creating MatrixUser for: {user_id}")
+    with sqlalchemy.orm.Session(bind=engine) as session:
+        session: sqlalchemy.orm.Session
+        matrix_user = MatrixUser(id=user_id)
+        matrix_user = session.merge(matrix_user)
+        session.commit()
+        token = matrix_user.token
+
+    log.debug(f"Notifying user of the account creation: {user_id}")
+
     room_id = await client.pm_slide(user_id)
-    _r = await client.room_send(room_id, "m.notice", {
-        "body": "Benvenuto allo spazio spaziale!",
+    display_name = await client.get_displayname(client.user_id)
+    formatting = dict(
+        username_text=client.user_id,
+        username_html=f"""<a href="https://matrix.to/#/{client.user_id}">{display_name}</a>""",
+        base_url=LOKI_BASE_URL,
+        token=token,
+    )
+    await client.room_send(room_id, "m.room.message", {
+        "msgtype": "m.notice",
+        "format": "org.matrix.custom.html",
+        "formatted_body": WELCOME_MESSAGE_HTML.format(**formatting),
+        "body": WELCOME_MESSAGE_TEXT.format(**formatting),
     })
+
     log.info(f"Notified joiner of parent space: {user_id}")
 
 
