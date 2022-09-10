@@ -4,26 +4,23 @@
 {% block title_main %}Home{% endblock %}
 
 {% block content %}
-    <p id="root-about">
+    <p>
         <b>Loki</b> è un chat bot che regola l'accesso alla <b>Zona Studenti</b> dello spazio <a href="https://matrix.org">Matrix</a> non-ufficiale dell'Unimore.
     </p>
-    <p id="root-why">
-        Per evitare che messaggi con contenuto potenzialmente sensibile vengano letti da soggetti che potrebbero usarli per effettuare <u>abusi di potere</u>, viene richiesta la <b>verifica delle proprie credenziali universitarie</b> a tutti gli studenti che desiderano accedere alla relativa zona.
-    </p>
-    <p id="root-index">
-        In aggiunta, il bot permette <i>opzionalmente</i> di inserire le proprie credenziali in una rubrica locale degli studenti universitari, facilitando la comunicazione in caso di necessità.
+    <p>
+        Per evitare che messaggi con contenuto potenzialmente sensibile vengano letti da soggetti che potrebbero usarli per effettuare <u>abusi di potere</u>, viene richiesta la <b>verifica delle proprie credenziali universitarie</b> a tutti gli studenti che desiderano accedere alla Zona Studenti.
     </p>
     <hr/>
-    <p id="root-join">
+    <p>
         Se <b>non sei ancora membro</b> dello spazio Matrix pubblico, puoi usare questo link per entrare a farne parte:
     </p>
-    <p id="root-spacename" class="center xl">
-        <a href="https://matrix.to/#/{{ config.MATRIX_PARENT_SPACE_ADDRESS }}?client=element.io" class="btn"><code>{{ config.MATRIX_PARENT_SPACE_ADDRESS }}</code></a>
+    <p class="center xl">
+        <a href="https://matrix.to/#/{{ config.MATRIX_PUBLIC_SPACE_ALIAS }}?client=element.io" class="btn"><code>{{ config.MATRIX_PUBLIC_SPACE_ALIAS }}</code></a>
     </p>
-    <p id="root-profile">
-        Se <b>sei già membro</b>, dovresti aver ricevuto un messaggio da Loki con il link per accedere al tuo profilo:
+    <p>
+        Se <b>sei già membro</b>, dovresti aver ricevuto un messaggio privato da Loki con il link per collegare i tuoi account:
     </p>
-    <p id="root-botname" class="center xl">
-        <a href="https://matrix.to/#/{{ config.MATRIX_USERNAME }}?client=element.io" class="btn"><code>{{ config.MATRIX_USERNAME }}</code></a>
+    <p class="center xl">
+        <a href="https://matrix.to/#/{{ config.MATRIX_USER_ID }}?client=element.io" class="btn"><code>{{ config.MATRIX_USER_ID }}</code></a>
     </p>
 {% endblock %}

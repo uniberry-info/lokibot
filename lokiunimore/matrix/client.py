@@ -1,12 +1,19 @@
-from lokiunimore.config import MATRIX_HOMESERVER, MATRIX_USERNAME, MATRIX_STORE_PATH
-from lokiunimore.matrix.extensions import ExtendedClient
+import nio.store.database
+
+from lokiunimore.config import MATRIX_HOMESERVER, MATRIX_USER_ID, MATRIX_STORE_DIR
+from lokiunimore.matrix.extensions import ExtendedAsyncClient
+from lokiunimore.matrix.device import generate_device_id
 
 
-# IDEA ignores the annotations of decorators <https://youtrack.jetbrains.com/issue/PY-53583/Decorator-return-type-ignored>
-client = ExtendedClient(
+client = ExtendedAsyncClient(
     homeserver=MATRIX_HOMESERVER.__wrapped__,
-    user=MATRIX_USERNAME.__wrapped__,
-    store_path=MATRIX_STORE_PATH.__wrapped__,
+    user=MATRIX_USER_ID.__wrapped__,
+    store_path=str(MATRIX_STORE_DIR.__wrapped__),
+    device_id=generate_device_id(__name__),
+    config=nio.AsyncClientConfig(
+        store_sync_tokens=True,
+        store=nio.store.database.DefaultStore,
+    ),
 )
 """
 The bot's Matrix client, powered by :mod:`nio`.

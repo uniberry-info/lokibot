@@ -4,36 +4,135 @@
 {% block title_main %}<code>{{ user.id }}</code>{% endblock %}
 
 {% block content %}
-    {% if user.account %}
-        <p>
-            Il tuo account Matrix è collegato all'account Studenti@Unimore:
-        </p>
-        <p class="center xl">
-            <code>{{ user.account.email }}</code>
-        </p>
-        <hr/>
-        <p>
-            Per disconnetterti, <b>abbandona</b> da Matrix la Zona Studenti.<br/>
-            <small>Attenzione: sarai rimosso anche da tutte le stanze contenute in essa!</small>
-        </p>
-    {% else %}
-        <p>
-            Il tuo account Matrix non è collegato a nessun account Studenti@Unimore.
-        </p>
-        <hr/>
-        <p>
-            Per collegare un account e <b>ottenere accesso</b> alla Zona Studenti, premi il tasto qui sotto.
-        </p>
-        <p class="center xl">
-            <a href="{{ url_for("page_matrix_link", token=token) }}" class="btn">Accedi con Google</a><br/>
-        </p>
-        <p>
-            <small>È richiesto il salvataggio di un piccolo cookie funzionale contenente il nome del tuo account che sarà eliminato al termine della procedura.</small>
-        </p>
-        <hr/>
-        <p>
-            Per eliminare completamente i tuoi dati dal database di Loki, <b>abbandona</b> da Matrix lo spazio Unimore.<br/>
-            <small>Attenzione: riunendoti allo spazio verrai nuovamente registrato!</small>
-        </p>
-    {% endif %}
+    <div>
+        {% if user.account %}
+            <p>
+                Il tuo account Matrix è collegato all'account Studenti@Unimore:
+            </p>
+            <p class="center xl">
+                <code>{{ user.account.email }}</code>
+            </p>
+        {% else %}
+            <p>
+                Il tuo account Matrix non è collegato a nessun account Studenti@Unimore:
+            </p>
+            <p class="center xl">
+                <a href="{{ url_for("page_matrix_link", token=token) }}" class="btn">Collega account</a><br/>
+            </p>
+            <p>
+                <small>È richiesto il salvataggio di un cookie funzionale contenente il nome del tuo account Matrix, che sarà eliminato al termine della procedura. Assicurati che il browser permetta il salvataggio di cookie!</small>
+            </p>
+        {% endif %}
+    </div>
+    <hr/>
+    <div>
+        {% if user.joined_private_space %}
+            <p>
+                Sei entrato nell'Area Studenti: <b>benvenuto</b>!<br/>
+                Se non la trovi, puoi premere il pulsante qui sotto per raggiungerla:
+            </p>
+            <p class="center xl">
+                <a href="https://matrix.to/#/{{ config.MATRIX_PRIVATE_SPACE_ID }}?client=element.io" class="btn">
+                    Mostrami l'Area Studenti
+                </a>
+            </p>
+        {% elif user.account %}
+            <p>
+                Sei stato invitato all'Area Studenti: <b>controlla il tuo client Matrix</b>!<br/>
+                Se non trovi nessun invito, puoi premere il pulsante qui sotto per raggiungerlo:
+            </p>
+            <p class="center xl">
+                <a href="https://matrix.to/#/{{ config.MATRIX_PRIVATE_SPACE_ID }}?client=element.io" class="btn">
+                    Mostrami l'invito
+                </a>
+            </p>
+        {% else %}
+            <p>
+                Per evitare che messaggi con contenuto potenzialmente sensibile vengano letti da soggetti che potrebbero usarli per effettuare <u>abusi di potere</u>, viene richiesta la <b>verifica delle proprie credenziali universitarie</b> a tutti gli studenti che desiderano accedere alla Zona Studenti.
+            </p>
+            <p>
+                Per <b>ottenere accesso</b> alla Zona Studenti, collega il tuo account.
+            </p>
+        {% endif %}
+    </div>
+    <hr/>
+    <div>
+        <details>
+            <summary>Hai bisogno di aiuto?</summary>
+            <p>
+                Richiedi assistenza nella stanza Matrix dedicata:
+            </p>
+            <p class="center xl">
+                <a href="https://matrix.to/#/{{ config.MATRIX_HELP_ROOM_ALIAS }}?client=element.io" class="btn">
+                    <code>{{ config.MATRIX_HELP_ROOM_ALIAS }}</code>
+                </a>
+            </p>
+        </details>
+        <details>
+            <summary>Come sono gestiti i miei dati?</summary>
+            <p>
+                Puoi leggere <a href="{{ url_for("page_privacy") }}">la politica per la privacy di Loki</a>, oppure richiedere più dettagli nella stanza Matrix per l'assistenza:
+            </p>
+            <p class="center xl">
+                <a href="https://matrix.to/#/{{ config.MATRIX_HELP_ROOM_ALIAS }}?client=element.io" class="btn">
+                    <code>{{ config.MATRIX_HELP_ROOM_ALIAS }}</code>
+                </a>
+            </p>
+        </details>
+        {% if user.joined_private_space %}
+            <details>
+                <summary>Vuoi disconnettere gli account Matrix e Studenti@Unimore?</summary>
+                <p>
+                    Puoi disconnettere gli account <b>abbandonando</b> da un client Matrix lo spazio <i>Area Studenti</i>.
+                </p>
+            </details>
+            <details>
+                <summary>Non sei più nell'Area Studenti, ma i tuoi account risultano ancora collegati e non riesci a riunirti?</summary>
+                <p>
+                    Potrebbe essersi verificato un bug in Loki.
+                </p>
+                <p>
+                    In tal caso, puoi richiedere un nuovo invito:
+                </p>
+                <p class="center xl">
+                    <a href="{{ url_for("page_matrix_invite", token=token) }}" class="btn">Richiedi nuovo invito</a><br/>
+                </p>
+                <p>
+                    Inoltre, scrivi qualcosa nella stanza Matrix dedicata all'assistenza, in modo che il bug possa essere trovato e sistemato:
+                </p>
+                <p class="center xl">
+                    <a href="https://matrix.to/#/{{ config.MATRIX_HELP_ROOM_ALIAS }}?client=element.io" class="btn">
+                        <code>{{ config.MATRIX_HELP_ROOM_ALIAS }}</code>
+                    </a>
+                </p>
+            </details>
+        {% elif user.account %}
+            <details>
+                <summary>Non ti è arrivato l'invito, oppure lo hai rifiutato per sbaglio?</summary>
+                <p>
+                    In tal caso, puoi provare a richiedere un nuovo invito:
+                </p>
+                <p class="center xl">
+                    <a href="{{ url_for("page_matrix_invite", token=token) }}" class="btn">Richiedi nuovo invito</a><br/>
+                </p>
+                <p>
+                    Se continua a non arrivarti, scrivi qualcosa nella stanza Matrix dedicata all'assistenza, così potrai ricevere aiuto:
+                </p>
+                <p class="center xl">
+                    <a href="https://matrix.to/#/{{ config.MATRIX_HELP_ROOM_ALIAS }}?client=element.io" class="btn">
+                        <code>{{ config.MATRIX_HELP_ROOM_ALIAS }}</code>
+                    </a>
+                </p>
+            </details>
+        {% endif %}
+        <details>
+            <summary>Vuoi eliminare i tuoi dati da Loki?</summary>
+            <p>
+                Puoi eliminare tutti i tuoi dati da Loki <b>abbandonando</b> da un client Matrix lo spazio <i>Unimore</i>.
+            </p>
+            <p>
+                <small>Attenzione: riunendoti allo spazio verrai nuovamente registrato!</small>
+            </p>
+        </details>
+    </div>
 {% endblock %}

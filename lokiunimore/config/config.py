@@ -2,7 +2,10 @@ import re
 import cfig
 import sqlalchemy.engine
 import pathlib
+import dotenv
 
+
+dotenv.load_dotenv()
 config = cfig.Configuration()
 
 
@@ -88,9 +91,9 @@ def MATRIX_PRIVATE_SPACE_ID(val: str) -> str:
 
 
 @config.required()
-def MATRIX_PRIVATE_SPACE_ALIAS(val: str) -> str:
+def MATRIX_HELP_ROOM_ALIAS(val: str) -> str:
     """
-    The room alias of the private Matrix space to display in various parts of the bot.
+    The room alias of the public Matrix room to request assistance in, to display in various parts of the bot.
     https://spec.matrix.org/latest/#room-aliases
     """
     if not val.startswith("#"):
@@ -168,7 +171,7 @@ def OIDC_API_BASE_URL(val: str) -> str:
 def OIDC_SCOPES(val: str | None) -> str:
     """
     The space-separated additional scopes that the OpenID Connect client should request access to.
-    The `openid` scope is requested by default.
+    The `openid` scope is added automatically.
     Defaults to requesting the `email profile` scopes.
     """
     if not val:
@@ -197,7 +200,7 @@ __all__ = (
     "MATRIX_PUBLIC_SPACE_ID",
     "MATRIX_PUBLIC_SPACE_ALIAS",
     "MATRIX_PRIVATE_SPACE_ID",
-    "MATRIX_PRIVATE_SPACE_ALIAS",
+    "MATRIX_HELP_ROOM_ALIAS",
     "SQLALCHEMY_DATABASE_URL",
     "FLASK_SECRET_KEY",
     "FLASK_BASE_URL",

@@ -1,13 +1,15 @@
 import logging
 import nio
+import datetime
 from lokiunimore.matrix.client import client
 from lokiunimore.matrix.extensions import RequestError
-from lokiunimore.config import MATRIX_PARENT_SPACE_ID, MATRIX_CHILD_SPACE_ID, LOKI_BASE_URL
+from lokiunimore.config import SQLALCHEMY_DATABASE_URL, MATRIX_PUBLIC_SPACE_ID, MATRIX_PRIVATE_SPACE_ID, FLASK_BASE_URL
 import sqlalchemy.orm
-from lokiunimore.sql.engine import engine
 from lokiunimore.sql.tables import MatrixUser
 
+
 log = logging.getLogger(__name__)
+engine = sqlalchemy.create_engine(SQLALCHEMY_DATABASE_URL.__wrapped__)
 
 
 async def on_member(room: nio.MatrixRoom, event: nio.Event):
@@ -18,6 +20,11 @@ async def on_member(room: nio.MatrixRoom, event: nio.Event):
     # Filters allow us to determine the event type in a better way
     event: nio.InviteMemberEvent | nio.RoomMemberEvent
 
+    # FIXME: this will disallow the bot from processing events happened while offline
+    if datetime.datetime.fromtimestamp(event.server_timestamp // 1000) + datetime.timedelta(minutes=1) < datetime.datetime.now():
+        log.debug(f"Skipping old event: {event.event_id}")
+        return
+
     # Catch events about myself immediately
     if event.state_key == client.user_id:
         # If I'm invited to a room, join it
@@ -26,18 +33,18 @@ async def on_member(room: nio.MatrixRoom, event: nio.Event):
 
     elif event.membership == "join":
         # If somebody joins the parent space, notify them of my presence
-        if room.room_id == MATRIX_PARENT_SPACE_ID:
+        if room.room_id == MATRIX_PUBLIC_SPACE_ID:
             await notify_parent_joiner(event.state_key)
         # If somebody joins the child space, notify them of the successful login
-        elif room.room_id == MATRIX_CHILD_SPACE_ID:
+        elif room.room_id == MATRIX_PRIVATE_SPACE_ID:
             await notify_child_joiner(event.state_key)
 
     elif event.membership == "leave":
         # If somebody leaves the parent space, remove them from all subrooms, delete their account, and finally notify them
-        if room.room_id == MATRIX_PARENT_SPACE_ID:
+        if room.room_id == MATRIX_PUBLIC_SPACE_ID:
             await notify_parent_leaver(event.state_key)
         # If somebody leaves the child space, remove them from all subrooms, delete their linking, and finally notify them
-        elif room.room_id == MATRIX_CHILD_SPACE_ID:
+        elif room.room_id == MATRIX_PRIVATE_SPACE_ID:
             await notify_child_leaver(event.state_key)
 
     elif event.membership == "ban":
@@ -93,7 +100,7 @@ async def notify_parent_joiner(user_id: str):
     formatting = dict(
         username_text=client.user_id,
         username_html=f"""<a href="https://matrix.to/#/{client.user_id}">{display_name}</a>""",
-        base_url=LOKI_BASE_URL,
+        base_url=FLASK_BASE_URL,
         token=token,
     )
     await client.room_send(room_id, "m.room.message", {
@@ -106,9 +113,46 @@ async def notify_parent_joiner(user_id: str):
     log.info(f"Notified joiner of parent space: {user_id}")
 
 
+SUCCESS_MESSAGE_TEXT = """
+Ti sei unito all'Area Studenti: benvenuto!
+
+Se in qualsiasi momento vuoi modificare o eliminare i tuoi dati salvati sul mio database, puoi accedervi dal tuo profilo privato:
+{base_url}/matrix/{token}
+"""
+
+SUCCESS_MESSAGE_HTML = """
+<p>
+    Ti sei unito all'Area Studenti: benvenuto!
+</p>
+<p>
+    Se in qualsiasi momento vuoi modificare o eliminare i tuoi dati salvati sul mio database, puoi <a href="{base_url}/matrix/{token}">accedervi dal tuo profilo privato</a>!
+</p>
+"""
+
+
 async def notify_child_joiner(user_id: str):
     log.info(f"User joined child space: {user_id}")
-    # TODO
+
+    log.debug(f"Setting MatrixUser as joined for: {user_id}")
+    with sqlalchemy.orm.Session(bind=engine) as session:
+        session: sqlalchemy.orm.Session
+        matrix_user: MatrixUser = session.query(MatrixUser).get(user_id)
+        matrix_user.joined_private_space = True
+        session.commit()
+        token = matrix_user.token
+
+    room_id = await client.pm_slide(user_id)
+    formatting = dict(
+        base_url=FLASK_BASE_URL,
+        token=token,
+    )
+    await client.room_send(room_id, "m.room.message", {
+        "msgtype": "m.notice",
+        "format": "org.matrix.custom.html",
+        "formatted_body": SUCCESS_MESSAGE_HTML.format(**formatting),
+        "body": SUCCESS_MESSAGE_TEXT.format(**formatting),
+    })
+
     log.info(f"Notified joiner of child space: {user_id}")
 
 
@@ -156,7 +200,7 @@ async def notify_parent_leaver(user_id: str):
         "body": GOODBYE_MESSAGE_TEXT,
     })
 
-    hierarchy = await client.room_hierarchy(MATRIX_PARENT_SPACE_ID, max_depth=9, suggested_only=False)
+    hierarchy = await client.room_hierarchy(MATRIX_PUBLIC_SPACE_ID, max_depth=9, suggested_only=False)
     for room in hierarchy:
         room_id = room["room_id"]
 
@@ -215,7 +259,7 @@ async def notify_child_leaver(user_id: str):
 
     room_id = await client.pm_slide(user_id)
     formatting = dict(
-        base_url=LOKI_BASE_URL,
+        base_url=FLASK_BASE_URL,
         token=token,
     )
     await client.room_send(room_id, "m.room.message", {
@@ -225,7 +269,7 @@ async def notify_child_leaver(user_id: str):
         "body": UNLINK_MESSAGE_TEXT.format(**formatting),
     })
 
-    hierarchy = await client.room_hierarchy(MATRIX_CHILD_SPACE_ID, max_depth=9, suggested_only=False)
+    hierarchy = await client.room_hierarchy(MATRIX_PRIVATE_SPACE_ID, max_depth=9, suggested_only=False)
     for room in hierarchy:
         room_id = room["room_id"]
 

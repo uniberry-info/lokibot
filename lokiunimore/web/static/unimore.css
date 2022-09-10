@@ -47,6 +47,20 @@ hr {
     border: 1px solid var(--body-foreground);
 }
 
+details {
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+}
+
+summary {
+    cursor: pointer;
+    color: var(--interactive-default);
+}
+
+summary:hover, summary:active {
+    color: var(--interactive-hover);
+}
+
 .btn {
     padding: 8px;
     border-width: 2px;

@@ -11,7 +11,7 @@ The declarative base of all the SQL tables.
 
 class Account(Base):
     """
-    A logged-in OAuth2 account.
+    A logged-in OpenID Connect account.
     """
 
     __tablename__ = "accounts"
@@ -61,7 +61,12 @@ class MatrixUser(Base):
 
     account_email = s.Column(s.String, s.ForeignKey("accounts.email"))
     """
-    If the user linked a OAuth2 account, its email.
+    If the user linked a OpenID Connect account, its email.
+    """
+
+    joined_private_space = s.Column(s.Boolean, nullable=False, default=False)
+    """
+    Whether this specific Matrix user has joined the private Matrix space monitored by Loki.
     """
 
     account = o.relationship("Account", back_populates="matrix_users")

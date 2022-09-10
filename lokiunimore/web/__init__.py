@@ -5,10 +5,15 @@ import werkzeug.middleware.proxy_fix
 import werkzeug.exceptions
 import authlib.integrations.flask_client
 import authlib.integrations.base_client
+import logging
+import requests
 
-from lokiunimore.config import config, OAUTH_OPENID_CONFIGURATION, OAUTH_API_BASE_URL, OAUTH_SCOPES, EMAIL_REGEX
+log = logging.getLogger(__name__)
+
+from lokiunimore.config import config, FLASK_SECRET_KEY, SQLALCHEMY_DATABASE_URL
 from lokiunimore.sql.tables import Base as TableDeclarativeBase
 from lokiunimore.sql.tables import Account, MatrixUser
+from lokiunimore.web.extensions.matrix_client import MatrixClientExtension
 
 
 app = flask.Flask(__name__)
@@ -16,39 +21,46 @@ app = flask.Flask(__name__)
 The main :mod:`flask` application object.
 """
 
-# Get config from the environment
-app.config.update({
-    **config.proxies.resolve(),
-    "SQLALCHEMY_TRACK_MODIFICATIONS": False,
-})
-
 rp_app = werkzeug.middleware.proxy_fix.ProxyFix(app=app, x_for=1, x_proto=1, x_host=1, x_port=0, x_prefix=0)
 """
 Reverse proxied instance of :data:`.app`, to use in production with a Caddy server.
 """
+
+app.config.update({
+    **config.proxies.resolve(),
+    "SECRET_KEY": FLASK_SECRET_KEY.__wrapped__,
+    "SQLALCHEMY_DATABASE_URI": SQLALCHEMY_DATABASE_URL.__wrapped__,
+    "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+})
+
 
 db = flask_sqlalchemy.SQLAlchemy(app=app, metadata=TableDeclarativeBase.metadata)
 """
 :mod:`sqlalchemy` database engine, usable by the whole :data:`.app`.
 """
 
-# Create all possible database tables
 db.create_all()
+
 
 oauth = authlib.integrations.flask_client.OAuth(app=app)
 """
 OAuth2 :mod:`flask` extension installed on :data:`.app`.
 """
 
-# Register the OAuth2 provider
 oauth.register(
-    name="oauth",
-    server_metadata_url=OAUTH_OPENID_CONFIGURATION,
-    api_base_url=OAUTH_API_BASE_URL,
+    name="oidc",
+    server_metadata_url=app.config["OIDC_CONFIGURATION_URL"],
+    api_base_url=app.config["OIDC_API_BASE_URL"],
     client_kwargs={
-        "scope": OAUTH_SCOPES
+        "scope": app.config["OIDC_SCOPES"]
     },
 )
+
+
+matrix = MatrixClientExtension(app=app)
+"""
+Synchronous Matrix client for use with Flask.
+"""
 
 
 ### Setup the app routes
@@ -56,6 +68,11 @@ oauth.register(
 @app.route("/")
 def page_root():
     return flask.render_template("root.html")
+
+
+@app.route("/privacy")
+def page_privacy():
+    return flask.render_template("privacy.html")
 
 
 @app.route("/matrix/<token>/")
@@ -68,13 +85,34 @@ def page_matrix_profile(token):
 def page_matrix_link(token):
     db.session.query(MatrixUser).filter_by(token=token).first_or_404()
     flask.session["matrix_token"] = token
-    return oauth.oauth.authorize_redirect(flask.url_for("page_oauth_authorize", _external=True))
+    return oauth.oidc.authorize_redirect(flask.url_for("page_oidc_authorize", _external=True))
+
+
+@app.route("/matrix/<token>/invite")
+def page_matrix_invite(token):
+    matrix_user: MatrixUser = db.session.query(MatrixUser).filter_by(token=token).first_or_404()
+
+    log.debug(f"Sending private space invite to: {matrix_user.id}")
+    response = requests.post(
+        f"{app.config['MATRIX_HOMESERVER']}/_matrix/client/v3/rooms/{app.config['MATRIX_PRIVATE_SPACE_ID']}/invite",
+        json={
+            "reason": "Account linked",
+            "user_id": matrix_user.id,
+        },
+        headers={
+            "Authorization": f"Bearer {matrix.access_token}",
+        }
+    )
+    response.raise_for_status()
+    log.info(f"Sent private space invite to: {matrix_user.id}")
+
+    return flask.redirect(flask.url_for("page_matrix_profile", token=token))
 
 
 @app.route("/authorize")
-def page_oauth_authorize():
+def page_oidc_authorize():
     try:
-        token = oauth.oauth.authorize_access_token()
+        token = oauth.oidc.authorize_access_token()
     except werkzeug.exceptions.BadRequestKeyError:
         return flask.render_template(
             "error.html",
@@ -91,7 +129,7 @@ def page_oauth_authorize():
         )
 
     # Not sure of why the nonce is now required or if I'm using it correctly
-    account = oauth.oauth.parse_id_token(token=token, nonce=token["userinfo"]["nonce"])
+    account = oauth.oidc.parse_id_token(token=token, nonce=token["userinfo"]["nonce"])
 
     if not account.email_verified:
         return flask.render_template(
@@ -102,7 +140,7 @@ def page_oauth_authorize():
         ), 403
 
     # noinspection PyTypeChecker
-    if not re.match(EMAIL_REGEX, account.email):
+    if not re.match(app.config["OIDC_EMAIL_REGEX"], account.email):
         return flask.render_template(
             "error.html",
             when="""durante la verifica del tuo account Google""",
@@ -122,6 +160,12 @@ def page_oauth_authorize():
 
         db.session.commit()
 
-        return flask.redirect(flask.url_for("page_matrix_profile", token=matrix_token))
+        return flask.redirect(flask.url_for("page_matrix_invite", token=matrix_token))
 
-    # TODO: Add user to matrix space
+    else:
+        return flask.render_template(
+            "error.html",
+            when="""durante il collegamento dei tuoi account""",
+            details="""Non è stato possibile trovare l'account da collegare.""",
+            tip="""Probabilmente hai rifiutato il cookie di sessione in cui viene salvato l'account locale da collegare. Assicurati che il tuo browser lo accetti, poi riprova!"""
+        ), 403

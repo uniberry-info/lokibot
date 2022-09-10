@@ -4,13 +4,13 @@
 {% block title_main %}Errore{% endblock %}
 
 {% block content %}
-    <p id="error-when">
+    <p>
         Si è verificato un errore {{ when | safe }}.
     </p>
-    <p id="error-details">
+    <p>
         {{ details | safe }}
     </p>
-    <p id="error-tip">
+    <p>
         {{ tip | safe }}
     </p>
 {% endblock %}
