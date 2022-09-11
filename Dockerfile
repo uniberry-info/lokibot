@@ -20,5 +20,7 @@ FROM package AS environment
 ENV PYTHONUNBUFFERED=1
 
 FROM environment AS entrypoint
-ENTRYPOINT ["poetry", "run", "python", "-m", "lokiunimore"]
-CMD []
+# Remember to change the CMD in Docker Compose!
+ENTRYPOINT ["poetry", "run", "python", "-m"]
+CMD ["lokiunimore.config"]
+
