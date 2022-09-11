@@ -1,3 +1,3 @@
-from . import config
+from .config import config
 
 config.cli()

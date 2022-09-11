@@ -15,6 +15,7 @@
     <option name="TEMPLATE_FOLDERS">
       <list>
         <option value="$MODULE_DIR$/lokiunimore/web/templates" />
+        <option value="$MODULE_DIR$/lokiunimore/matrix/templates" />
       </list>
     </option>
   </component>

@@ -93,17 +93,7 @@ def page_matrix_invite(token):
     matrix_user: MatrixUser = db.session.query(MatrixUser).filter_by(token=token).first_or_404()
 
     log.debug(f"Sending private space invite to: {matrix_user.id}")
-    response = requests.post(
-        f"{app.config['MATRIX_HOMESERVER']}/_matrix/client/v3/rooms/{app.config['MATRIX_PRIVATE_SPACE_ID']}/invite",
-        json={
-            "reason": "Account linked",
-            "user_id": matrix_user.id,
-        },
-        headers={
-            "Authorization": f"Bearer {matrix.access_token}",
-        }
-    )
-    response.raise_for_status()
+    matrix.room_invite(room_id=app.config["MATRIX_PRIVATE_SPACE_ID"], user_id=matrix_user.id)
     log.info(f"Sent private space invite to: {matrix_user.id}")
 
     return flask.redirect(flask.url_for("page_matrix_profile", token=token))
@@ -154,7 +144,7 @@ def page_oidc_authorize():
         last_name=account.family_name,
     ))
 
-    if matrix_token := flask.session.get("matrix_token"):
+    if matrix_token := flask.session.pop("matrix_token", None):
         matrix_user = db.session.query(MatrixUser).filter_by(token=matrix_token).first_or_404()
         matrix_user.account = local_account
 

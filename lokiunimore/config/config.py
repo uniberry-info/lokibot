@@ -51,6 +51,15 @@ def MATRIX_STORE_DIR(val: str | None) -> pathlib.Path:
     return pathlib.Path(val)
 
 
+@config.optional()
+def MATRIX_SKIP_EVENTS(val: str | None) -> bool:
+    """
+    Set this to `true` to have the Matrix client skip processing all events happened until now.
+    Useful for initializing a new database on an existing bot.
+    """
+    return val and val.lower() == "true"
+
+
 @config.required()
 def MATRIX_PUBLIC_SPACE_ID(val: str) -> str:
     """
@@ -197,6 +206,7 @@ __all__ = (
     "MATRIX_USER_ID",
     "MATRIX_USER_SECRET",
     "MATRIX_STORE_DIR",
+    "MATRIX_SKIP_EVENTS",
     "MATRIX_PUBLIC_SPACE_ID",
     "MATRIX_PUBLIC_SPACE_ALIAS",
     "MATRIX_PRIVATE_SPACE_ID",

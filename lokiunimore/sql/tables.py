@@ -78,8 +78,22 @@ class MatrixUser(Base):
         return f"{self.__class__.__qualname__}(id={self.id!r}, token={self.token!r}, account_email={self.account_email!r})"
 
 
+class MatrixProcessedEvent(Base):
+    """
+    A Matrix event that has been processed by the bot and that should not be processed again.
+    """
+
+    __tablename__ = "matrix_processed_events"
+
+    id = s.Column(s.String, primary_key=True)
+    """
+    The id of the processed event, such as ``$IhC83CM3TRkPG7UbNRsH_t_O2J5DASqzkUYVkPxYR-o``.
+    """
+
+
 __all__ = (
     "Base",
     "Account",
     "MatrixUser",
+    "MatrixProcessedEvent",
 )

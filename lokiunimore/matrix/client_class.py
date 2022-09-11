@@ -4,17 +4,17 @@ This module defines some extensions for :mod:`nio`, as it is currently missing s
 
 import aiohttp
 import nio
+import nio.crypto
 import logging
 import hashlib
 import hmac
+import typing as t
 
-from typing import Union, Tuple, Any, Optional, TypeVar, Type
-from nio import DataProvider
-from nio.crypto import AsyncDataT
-from lokiunimore.matrix.device import generate_device_name
-
-T = TypeVar("T")
+T = t.TypeVar("T")
+Something = t.TypeVar("Something")
 log = logging.getLogger(__name__)
+
+from lokiunimore.utils.device_names import generate_device_name
 
 
 class RequestError(Exception):
@@ -33,6 +33,48 @@ class ExtendedAsyncClient(nio.AsyncClient):
     An :class:`~nio.AsyncClient` with some extra features to be upstreamed some day.
     """
 
+    def __repr__(self):
+        return f"<{self.__class__.__qualname__} for {self.user} at {self.homeserver}>"
+
+    def _send(
+            self,
+            response_class: t.Type[T],
+            method: str,
+            path: str,
+            data: t.Union[None, str, nio.crypto.AsyncDataT] = None,
+            response_data: t.Optional[t.Tuple[t.Any, ...]] = None,
+            content_type: t.Optional[str] = None,
+            trace_context: t.Optional[t.Any] = None,
+            data_provider: t.Optional[nio.DataProvider] = None,
+            timeout: t.Optional[float] = None,
+            content_length: t.Optional[int] = None,
+    ) -> T:
+        """
+        Override :meth:`nio.client.AsyncClient._send` with something that actually raises errors instead of returning them.
+
+        .. danger::
+
+            SUPER UNTESTED. PLEASE WORK. PLEASE DO. PLEASE DO NOT EXPLODE IN PRODUCTION.
+        """
+        result = super()._send(
+            response_class=response_class,
+            method=method,
+            path=path,
+            data=data,
+            response_data=response_data,
+            content_type=content_type,
+            trace_context=trace_context,
+            data_provider=data_provider,
+            timeout=timeout,
+            content_length=content_length,
+        )
+
+        if isinstance(result, nio.responses.ErrorResponse):
+            log.warning(f"{method} {path} errored: {result!r}")
+            raise RequestError(result)
+
+        return result
+
     async def register_with_shared_secret(self, shared_secret: str, username: str, displayname: str, password: str):
         """
         Given the homeserver's shared secret, perform a `shared-secret registration <https://matrix-org.github.io/synapse/latest/admin_api/register_api.html#shared-secret-registration>`_.
@@ -46,7 +88,7 @@ class ExtendedAsyncClient(nio.AsyncClient):
         .. note:: ``shared_secret`` is not the same shared secret of :meth:`.login_with_shared_secret`.
         """
 
-        log.debug(f"Registering {username} with a shared secret...")
+        log.debug(f"Registering via shared-secret registration: {username}")
 
         path = nio.Api._build_path(
             ["v1", "register"],
@@ -77,7 +119,7 @@ class ExtendedAsyncClient(nio.AsyncClient):
         }))
         registration.raise_for_status()
 
-        log.debug(f"Registered {username} successfully!")
+        log.info(f"Registered via shared-secret registration: {username}")
 
     async def login_with_shared_secret(self, shared_secret: str) -> None:
         """
@@ -147,7 +189,7 @@ class ExtendedAsyncClient(nio.AsyncClient):
 
         return rooms
 
-    async def pm_slide(self, user_id: str) -> str:
+    async def find_or_create_pm_room(self, user_id: str) -> str:
         """
         Find the first available private message room with the given user, or create one if none exist.
 
@@ -175,37 +217,34 @@ class ExtendedAsyncClient(nio.AsyncClient):
             else:
                 raise Exception("Failed to slide into an user's PMs.")
 
-    def _send(
-        self,
-        response_class: Type[T],
-        method: str,
-        path: str,
-        data: Union[None, str, AsyncDataT] = None,
-        response_data: Optional[Tuple[Any, ...]] = None,
-        content_type: Optional[str] = None,
-        trace_context: Optional[Any] = None,
-        data_provider: Optional[DataProvider] = None,
-        timeout: Optional[float] = None,
-        content_length: Optional[int] = None,
-    ) -> T:
+    async def room_send_message_html(self, room_id: str, text: str, html: str) -> Something:
         """
-        Override :meth:`nio.client.AsyncClient._send` with something that actually raises errors instead of returning them. (Why!?)
+        Send an HTML message with a text fallback.
+
+        :param room_id: The ID of the room to send the message in.
+        :param text: The plain text fallback of the message.
+        :param html: The HTML message.
+        :return: I have no idea, whatever :meth:`~nio.client.AsyncClient.room_send` does.
         """
-        result = super()._send(
-            response_class=response_class,
-            method=method,
-            path=path,
-            data=data,
-            response_data=response_data,
-            content_type=content_type,
-            trace_context=trace_context,
-            data_provider=data_provider,
-            timeout=timeout,
-            content_length=content_length,
-        )
 
-        if isinstance(result, nio.responses.ErrorResponse):
-            log.warning(f"{method} {path} errored: {result!r}")
-            raise RequestError(result)
+        return await self.room_send(room_id, "m.room.message", {
+            "msgtype": "m.notice",
+            "format": "org.matrix.custom.html",
+            "formatted_body": html,
+            "body": text,
+        })
 
-        return result
+    async def mention_html(self, user_id: str) -> str:
+        """
+        Create a rich HTML mention.
+
+        To provide a text fallback for the HTML mention, use the ``user_id``.
+
+        :param user_id: The user to mention.
+        :return: The HTML string.
+        """
+
+        display_name = await self.get_displayname(user_id)
+
+        # language=html
+        return f"""<a href="https://matrix.to/#/{user_id}">{display_name}</a>"""
