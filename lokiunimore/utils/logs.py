@@ -4,9 +4,9 @@ import coloredlogs
 log = logging.getLogger(__name__)
 
 
-def install_log_handler(logger):
+def install_log_handler():
     coloredlogs.install(
-        logger=logger,
+        logger=logging.getLogger("lokiunimore"),
         level="DEBUG",
         fmt="{asctime} | {name:<32} | {levelname:>8} | {message}",
         style="{",
