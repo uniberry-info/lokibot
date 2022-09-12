@@ -11,7 +11,6 @@ import hmac
 import typing as t
 
 T = t.TypeVar("T")
-Something = t.TypeVar("Something")
 log = logging.getLogger(__name__)
 
 from lokiunimore.utils.device_names import generate_device_name
@@ -217,7 +216,7 @@ class ExtendedAsyncClient(nio.AsyncClient):
             else:
                 raise Exception("Failed to slide into an user's PMs.")
 
-    async def room_send_message_html(self, room_id: str, text: str, html: str) -> Something:
+    async def room_send_message_html(self, room_id: str, text: str, html: str):
         """
         Send an HTML message with a text fallback.
 
