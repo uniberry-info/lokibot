@@ -20,6 +20,11 @@ jobs:
       - name: "⬇️ Checkout repository"
         uses: actions/checkout@v3
 
+      - name: "📦 Setup olm"
+        run: >-
+          apt-get install -y 
+            libolm-dev
+
       - name: "🔨 Initialize CodeQL"
         uses: github/codeql-action/init@v2
         with:
