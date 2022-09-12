@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "_base.html" %}
 
 {% block title_tab %}Home{% endblock %}
 {% block title_main %}Home{% endblock %}
@@ -17,8 +17,9 @@
     <p class="center xl">
         <a href="https://matrix.to/#/{{ config.MATRIX_PUBLIC_SPACE_ALIAS }}?client=element.io" class="btn"><code>{{ config.MATRIX_PUBLIC_SPACE_ALIAS }}</code></a>
     </p>
+    <hr/>
     <p>
-        Se <b>sei già membro</b>, dovresti aver ricevuto un messaggio privato da Loki con il link per collegare i tuoi account:
+        Se <b>sei già membro</b>, dovresti aver ricevuto un messaggio da Loki contenente un link con ulteriori istruzioni:
     </p>
     <p class="center xl">
         <a href="https://matrix.to/#/{{ config.MATRIX_USER_ID }}?client=element.io" class="btn"><code>{{ config.MATRIX_USER_ID }}</code></a>

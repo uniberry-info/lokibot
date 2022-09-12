@@ -1,10 +1,86 @@
-{% extends "base.html" %}
+{% extends "_base.html" %}
 
 {% block title_tab %}Privacy policy{% endblock %}
 {% block title_main %}Politica per la privacy{% endblock %}
 
 {% block content %}
+    <hr/>
+    <h3>
+        Chi sei?
+    </h3>
     <p>
-        La politica per la privacy sarà stilata quando il bot sarà terminato.
+        Sono <b>Stefano Pigozzi</b>, lo studente magistrale che ha amministrato per anni il gruppo Telegram <b>Unimore Informatica</b>, e che ora sta effettuando la migrazione del gruppo verso Matrix, uno standard più versatile e libero.
+    </p>
+    <p>
+        Se hai bisogno, puoi contattarmi su <a href="https://matrix.to/#/@steffo:ryg.one">Matrix</a>, <a href="https://t.me/Steffo">Telegram</a>, <a href="mailto:me@steffo.eu">via email</a> oppure sul <a href="https://fosstodon.org/@steffo">Fediverso</a>.
+    </p>
+    <hr/>
+    <h3>
+        Perchè hai bisogno dei miei dati?
+    </h3>
+    <p>
+        Ho bisogno dei tuoi dati per <b>assicurarmi che tu sia uno studente dell'Unimore</b>, e non un professore, una persona esterna, o (vade retro) uno spammer!
+    </p>
+    <p>
+        Visto che in passato si sono verificate intrusioni all'interno del gruppo Telegram, abbiamo sviluppato un sistema di verifica che permette solo agli studenti di partecipare a certi gruppi, al fine di evitare <u>ripercussioni</u> per discussioni che hanno avuto luogo al loro interno e in generale <u>abusi di potere</u>.
+    </p>
+    <hr/>
+    <h3>
+        Quali dati raccogli?
+    </h3>
+    <p>
+        Se entri nello spazio Matrix pubblico <b><i>Unimore</i></b>, raccolgo dal tuo evento di unione il seguente dato:
+    </p>
+    <ul>
+        <li>Il tuo <b>username Matrix</b></li>
+    </ul>
+    <p>
+        Se colleghi il tuo account Studenti@Unimore al tuo account Matrix, ottenendo accesso allo spazio Matrix privato <b><i>Zona Studenti</i></b>, mi salvo nel database anche le seguenti informazioni, prese dal tuo account Studenti@Unimore:
+    </p>
+    <ul>
+        <li>Il tuo <b>nome</b></li>
+        <li>Il tuo <b>cognome</b></li>
+        <li>La tua <b>email istituzionale</b></li>
+        <li>Se hai accettato oppure no l'invito alla <i>Zona Studenti</i></li>
+    </ul>
+    <hr/>
+    <h3>
+        Mi puoi fare un esempio?
+    </h3>
+    <p>
+        I dati su me stesso che sono salvati nel database sono:
+    </p>
+    <ul>
+        <li>Username Matrix: <b>@steffo:ryg.one</b></li>
+        <li>Nome: <b>Stefano</b></li>
+        <li>Cognome: <b>Pigozzi</b></li>
+        <li>Email istituzionale: <b>256895@studenti.unimore.it</b></li>
+        <li>Invito: <b>accettato</b></li>
+    </ul>
+    <hr/>
+    <h3>
+        Per quanto tieni salvati i dati?
+    </h3>
+    <p>
+        Mantengo i tuoi dati solo per il tempo per cui è necessario che la tua identità sia verificata, ovvero per tutto il tempo in cui permani negli spazi <i>Unimore</i> e <i>Zona Studenti</i>.
+    </p>
+    <p>
+        Abbandonando lo spazio <b><i>Zona Studenti</i></b>, i dati richiesti per entrare in esso vengono cancellati.
+    </p>
+    <p>
+        Abbandonando lo spazio <b><i>Unimore</i></b>, tutti i tuoi dati vengono completamente cancellati.
+    </p>
+    <hr/>
+    <h3>
+        Dove sono salvati i miei dati?
+    </h3>
+    <p>
+        I dati si trovano su un server dedicato noleggiato da <a href="https://www.hetzner.com/">Hetzner</a>, in Germania.
+    </p>
+    <p>
+        Ogni giorno, viene eseguito un backup di essi tramite <a href="https://duplicity.gitlab.io/"><code>duplicity</code></a>, che viene in seguito <b>criptato</b> tramite <a href="https://www.gnupg.org/">GnuPG</a> e poi <b>uploadato</b> per maggiore ridondanza su un account personale di <a href="https://drive.google.com/">Google Drive</a>.
+    </p>
+    <p>
+        Al server, oltre a me, hanno accesso altri tre amici (<a href="https://www.fermitech.info">EvilBalu</a>, <a href="https://marte.dev">Ichicoro</a> e <a href="https://www.fabiodesim.one/">Proto</a>), in quanto esso viene utilizzato anche per altri nostri progetti collaborativi: tecnicamente, loro possono ottenere accesso ai dati, ma essendo persone da me fidate, dubito lo faranno.
     </p>
 {% endblock %}

@@ -15,14 +15,16 @@ import typing as t
 import functools
 import sqlalchemy
 import sqlalchemy.orm
+import flask
 
 T = t.TypeVar("T")
 log = logging.getLogger(__name__)
 
 from lokiunimore.sql.tables import MatrixUser, MatrixProcessedEvent
 from lokiunimore.utils.device_names import generate_device_name
-from lokiunimore.config import MATRIX_PUBLIC_SPACE_ID, MATRIX_PRIVATE_SPACE_ID, FLASK_BASE_URL, MATRIX_SKIP_EVENTS
+from lokiunimore.config import MATRIX_PUBLIC_SPACE_ID, MATRIX_PRIVATE_SPACE_ID, MATRIX_SKIP_EVENTS
 from lokiunimore.matrix.templates.messages import WELCOME_MESSAGE_TEXT, WELCOME_MESSAGE_HTML, SUCCESS_MESSAGE_TEXT, SUCCESS_MESSAGE_HTML, GOODBYE_MESSAGE_TEXT, GOODBYE_MESSAGE_HTML, UNLINK_MESSAGE_TEXT, UNLINK_MESSAGE_HTML
+from lokiunimore.web.app import app
 
 
 class RequestError(Exception):
@@ -330,6 +332,11 @@ class LokiClient(ExtendedAsyncClient):
             session.commit()
             return mpe
 
+    @staticmethod
+    def _loki_web_profile(token: str):
+        with app.app_context():
+            return flask.url_for("page_matrix_profile", token=token)
+
     @filter_processed_events
     async def __handle_membership_change(self, room: nio.MatrixRoom, event: nio.Event) -> None:
         # Filters allow us to determine the event type in a better way
@@ -385,9 +392,8 @@ class LokiClient(ExtendedAsyncClient):
         log.debug(f"Notifying user of the account creation: {user_id}")
         formatting = dict(
             username_text=self.user_id,
-            username_html=await self.mention_html(user_id),
-            base_url=FLASK_BASE_URL,
-            token=token,
+            username_html=await self.mention_html(self.user_id),
+            profile_url=self._loki_web_profile(token),
         )
         await self.room_send_message_html(
             await self.find_or_create_pm_room(user_id),
@@ -412,8 +418,7 @@ class LokiClient(ExtendedAsyncClient):
 
         log.debug(f"Notifying user of the account link: {user_id}")
         formatting = dict(
-            base_url=FLASK_BASE_URL,
-            token=token,
+            profile_url=self._loki_web_profile(token),
         )
         await self.room_send_message_html(
             await self.find_or_create_pm_room(user_id),
@@ -474,6 +479,7 @@ class LokiClient(ExtendedAsyncClient):
             matrix_user: MatrixUser = session.query(MatrixUser).get(user_id)
             if matrix_user is None:
                 log.warning(f"User left private space without having a pre-existent record in the db: {user_id}")
+                return
             elif matrix_user.account is None:
                 log.warning(f"User left private space without having a linked account in the db: {user_id}")
                 token = matrix_user.token
@@ -488,8 +494,7 @@ class LokiClient(ExtendedAsyncClient):
 
         log.debug(f"Notifying user of the account unlinking: {user_id}")
         formatting = dict(
-            base_url=FLASK_BASE_URL,
-            token=token,
+            profile_url=self._loki_web_profile(token),
         )
         await self.room_send_message_html(
             await self.find_or_create_pm_room(user_id),

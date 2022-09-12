@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="it">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% block title_tab %}{% endblock %} - Loki</title>
+        <link rel="stylesheet" href="{{ url_for("static", filename="unimore.css") }}"/>
+        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    </head>
+    <body>
+        <hgroup>
+            <h1 id="title-loki">
+                <a href="{{ url_for("page_root") }}">
+                    <img alt="" src="{{ url_for("static", filename="icon.png") }}" width="64" height="64" id="icon"/>
+                    Loki
+                </a>
+            </h1>
+            <h2 id="title-main">
+                {% block title_main %}{% endblock %}
+            </h2>
+        </hgroup>
+        <main id="content">
+            {% block content %}{% endblock %}
+        </main>
+        <footer>
+            <hr/>
+            <span>
+                © 2022 <a href="https://www.steffo.eu">Stefano Pigozzi</a>
+            </span>
+            -
+            <span>
+                Licenza <a href="https://github.com/Steffo99/lokiunimore/blob/main/LICENSE.txt"><code>AGPL-3.0-or-later</code></a>
+            </span>
+            -
+            <span>
+                <a href="https://github.com/Steffo99/lokiunimore">Codice sorgente</a>
+            </span>
+            -
+            <span>
+                <a href="{{ url_for("page_privacy") }}">Politica per la privacy</a>
+            </span>
+        </footer>
+    </body>
+</html>

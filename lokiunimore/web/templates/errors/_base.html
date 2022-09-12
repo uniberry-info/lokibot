@@ -1,0 +1,20 @@
+{% extends "_base.html" %}
+
+{% block title_tab %}Errore{% endblock %}
+{% block title_main %}Errore{% endblock %}
+
+{% block content %}
+    {% block error %}{% endblock %}
+    <hr/>
+    <details>
+        <summary>Hai bisogno di aiuto?</summary>
+        <p>
+            Richiedi assistenza nella stanza Matrix dedicata:
+        </p>
+        <p class="center xl">
+            <a href="https://matrix.to/#/{{ config.MATRIX_HELP_ROOM_ALIAS }}?client=element.io" class="btn">
+                <code>{{ config.MATRIX_HELP_ROOM_ALIAS }}</code>
+            </a>
+        </p>
+    </details>
+{% endblock %}

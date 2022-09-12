@@ -4,7 +4,8 @@
 
 :root {
     --body-background: #260909;
-    --body-foreground: #ffffff;
+    --body-foreground: #e6bebe;
+    --body-accent: #ffffff;
     --interactive-default: #d14224;
     --interactive-hover: #d15238;
     --interactive-text: #ffffff;
@@ -29,22 +30,36 @@ h1, h2, h3, h4, h5, h6, .center {
     text-align: center;
 }
 
+h1, h2, h3, h4, h5, h6, b {
+    color: var(--body-accent);
+}
+
 main {
     max-width: 612px;
     margin-left: auto;
     margin-right: auto;
 }
 
+footer {
+    max-width: 612px;
+    margin-left: auto;
+    margin-right: auto;
+
+    text-align: center;
+    font-size: x-small;
+}
+
 a {
     color: var(--interactive-default);
 }
 
-a:hover, a:active {
+a:hover, a:focus, a:active {
     color: var(--interactive-hover);
+    text-shadow: 0 0 4px var(--interactive-hover);
 }
 
 hr {
-    border: 1px solid var(--body-foreground);
+    border: 1px dashed var(--interactive-default);
 }
 
 details {
@@ -57,7 +72,7 @@ summary {
     color: var(--interactive-default);
 }
 
-summary:hover, summary:active {
+summary:hover, summary:focus, summary:active {
     color: var(--interactive-hover);
 }
 
@@ -73,11 +88,12 @@ summary:hover, summary:active {
     color: var(--interactive-text);
 }
 
-.btn:hover, .btn:active {
+.btn:hover, .btn:focus, .btn:active {
     background-color: var(--interactive-hover);
     border-color: var(--interactive-hover);
 
     color: var(--interactive-text);
+    box-shadow: 0 0 4px var(--interactive-hover);
 }
 
 .btn:active {
@@ -88,10 +104,24 @@ a.btn {
     text-decoration-line: none;
 }
 
+.xs {
+    font-size: small;
+}
+
 .xl {
     font-size: x-large;
 }
 
 .xxl {
     font-size: xx-large;
+}
+
+#icon {
+    width: 64px;
+    height: 64px;
+
+    margin-left: auto;
+    margin-right: auto;
+
+    display: block;
 }

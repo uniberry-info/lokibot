@@ -1,7 +1,6 @@
 import re
 import cfig
 import sqlalchemy.engine
-import pathlib
 import dotenv
 
 
@@ -119,14 +118,29 @@ def FLASK_SECRET_KEY(val: str) -> str:
 
 
 @config.required()
-def FLASK_BASE_URL(val: str) -> str:
+def FLASK_SERVER_NAME(val: str) -> str:
     """
-    The base URL of the web server where Loki is accessible at.
-    Should include the protocol and not have a trailing slash.
-    For example, `https://loki.steffo.eu`.
+    The hostname of the server where the Flask webserver is available at.
+    For example, `loki.steffo.eu`.
     """
-    if val.endswith("/"):
-        raise ValueError("Should not end with a trailing slash.")
+    return val
+
+
+@config.required()
+def FLASK_APPLICATION_ROOT(val: str) -> str:
+    """
+    The path where the root of the Flask webserver will be served at.
+    For example, `/`.
+    """
+    return val
+
+
+@config.required()
+def FLASK_PREFERRED_URL_SCHEME(val: str) -> str:
+    """
+    The protocol to prefer when building URLs outside a Flask request.
+    For example, `https`
+    """
     return val
 
 
@@ -200,7 +214,9 @@ __all__ = (
     "MATRIX_HELP_ROOM_ALIAS",
     "SQLALCHEMY_DATABASE_URL",
     "FLASK_SECRET_KEY",
-    "FLASK_BASE_URL",
+    "FLASK_SERVER_NAME",
+    "FLASK_APPLICATION_ROOT",
+    "FLASK_PREFERRED_URL_SCHEME",
     "OIDC_CLIENT_ID",
     "OIDC_CLIENT_SECRET",
     "OIDC_CONFIGURATION_URL",

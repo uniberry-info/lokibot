@@ -6,7 +6,7 @@ Benvenuto allo spazio Matrix dell'Unimore!
 Sono {username_text}, il bot buttafuori che verifica le credenziali degli utenti che entrano e permette loro di accedere alle rispettive aree.
 
 Se sei uno studente, puoi ottenere accesso all'Area Studenti verificando la tua identità:
-{base_url}/matrix/{token}
+{profile_url}
 """
 
 # language=html
@@ -18,7 +18,7 @@ WELCOME_MESSAGE_HTML = """
     Sono {username_html}, il bot buttafuori che verifica le credenziali degli utenti che entrano e permette loro di accedere alle rispettive aree.
 </p>
 <p>
-    Se sei uno studente, puoi ottenere accesso all'Area Studenti <a href="{base_url}/matrix/{token}">verificando la tua identità</a>!
+    Se sei uno studente, puoi ottenere accesso all'Area Studenti <a href="{profile_url}">verificando la tua identità</a>!
 </p>
 """
 
@@ -28,7 +28,7 @@ SUCCESS_MESSAGE_TEXT = """
 Ti sei unito all'Area Studenti: benvenuto!
 
 Se in qualsiasi momento vuoi modificare o eliminare i tuoi dati salvati sul mio database, puoi accedervi dal tuo profilo privato:
-{base_url}/matrix/{token}
+{profile_url}
 """
 
 # language=html
@@ -37,7 +37,7 @@ SUCCESS_MESSAGE_HTML = """
     Ti sei unito all'Area Studenti: benvenuto!
 </p>
 <p>
-    Se in qualsiasi momento vuoi modificare o eliminare i tuoi dati salvati sul mio database, puoi <a href="{base_url}/matrix/{token}">accedervi dal tuo profilo privato</a>!
+    Se in qualsiasi momento vuoi modificare o eliminare i tuoi dati salvati sul mio database, puoi <a href="{profile_url}">accedervi dal tuo profilo privato</a>!
 </p>
 """
 
@@ -70,7 +70,7 @@ UNLINK_MESSAGE_TEXT = """
 Hai abbandonato l'Area Studenti dello spazio Unimore, quindi ho scollegato il tuo account Studenti@Unimore dal tuo account Matrix.
 
 Se cambierai idea in futuro, potrai sempre essere riaggiunto all'Area Studenti ricollegando il tuo account:
-{base_url}/matrix/{token}
+{profile_url}
 
 Abbi un buon proseguimento di giornata! :)
 """
@@ -81,7 +81,7 @@ UNLINK_MESSAGE_HTML = """
     Hai abbandonato l'Area Studenti dello spazio Unimore, quindi ho scollegato il tuo account Studenti@Unimore dal tuo account Matrix.
 </p>
 <p>
-    Se cambierai idea in futuro, potrai sempre essere riaggiunto all'Area Studenti <a href="{base_url}/matrix/{token}">ricollegando il tuo account</a>!
+    Se cambierai idea in futuro, potrai sempre essere riaggiunto all'Area Studenti <a href="{profile_url}">ricollegando il tuo account</a>!
 </p>
 <p>
     Abbi un buon proseguimento di giornata! :)

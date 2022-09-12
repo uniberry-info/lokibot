@@ -1,0 +1,16 @@
+{% extends "errors/_base.html" %}
+
+{% block error %}
+    <p>
+        Non è stato possibile inviarti un invito alla Zona Studenti.
+    </p>
+    <p>
+        Questo errore si verifica in quattro casi:
+    </p>
+    <ul>
+        <li>se sei già membro della Zona Studenti;</li>
+        <li>se sei stato bandito dalla Zona Studenti;</li>
+        <li>se il bot non è più all'interno della Zona Studenti;</li>
+        <li>se il bot non ha i privilegi per invitarti dentro la Zona Studenti.</li>
+    </ul>
+{% endblock %}

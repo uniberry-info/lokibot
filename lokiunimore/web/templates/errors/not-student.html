@@ -1,0 +1,18 @@
+{% extends "errors/_base.html" %}
+
+{% block error %}
+    <p>
+        Non è stato possibile collegare il tuo account, in quanto esso <b>non appartiene all'organizzazione Google <i>Studenti@Unimore</i></b>.
+    </p>
+    <p>
+        Assicurati di aver fatto il login con l'account corretto: solo gli account con email <code>@studenti.unimore.it</code> possono accedere!
+    </p>
+    <p>
+        Per sicurezza, prima di riprovare, effettua il logout da tutti i tuoi account Google:
+    </p>
+    <p class="center xl">
+        <a href="https://accounts.google.com/logout" class="btn">
+            Logout da Google
+        </a>
+    </p>
+{% endblock %}

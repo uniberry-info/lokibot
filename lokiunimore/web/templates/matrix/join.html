@@ -1,0 +1,70 @@
+{% extends "_base.html" %}
+
+{% block title_tab %}{{ user.id }}{% endblock %}
+{% block title_main %}<code>{{ user.id }}</code>{% endblock %}
+
+{% block content %}
+    <div>
+        <p>
+            Il tuo account Matrix è collegato all'account Studenti@Unimore:
+        </p>
+        <p class="center xl">
+            {{ user.account.first_name }} {{ user.account.last_name }}<br/>
+            <code>{{ user.account.email }}</code>
+        </p>
+    </div>
+    <hr/>
+    <div>
+        <p>
+            Ti è stato inviato l'invito per l'Area Studenti: <b>controlla il tuo client Matrix</b>!
+        </p>
+        <p>
+            Se non trovi nessun invito, puoi premere il pulsante qui sotto:
+        </p>
+        <p class="center xl">
+            <a href="https://matrix.to/#/{{ config.MATRIX_PRIVATE_SPACE_ID }}?client=element.io" class="btn">
+                Mostrami l'invito
+            </a>
+        </p>
+    </div>
+    <hr/>
+    <div>
+        <details>
+            <summary>Hai bisogno di aiuto?</summary>
+            <p>
+                Richiedi assistenza nella stanza Matrix dedicata:
+            </p>
+            <p class="center xl">
+                <a href="https://matrix.to/#/{{ config.MATRIX_HELP_ROOM_ALIAS }}?client=element.io" class="btn">
+                    <code>{{ config.MATRIX_HELP_ROOM_ALIAS }}</code>
+                </a>
+            </p>
+        </details>
+        <details>
+            <summary>Come sono gestiti i miei dati?</summary>
+            <p>
+                Leggi la politica per la privacy di Loki per scoprirlo:
+            </p>
+            <p class="center xl">
+                <a href="{{ url_for("page_privacy") }}" class="btn">
+                    Politica per la privacy
+                </a>
+            </p>
+        </details>
+        <details>
+            <summary>Vuoi disconnettere gli account Matrix e Studenti@Unimore?</summary>
+            <p>
+                Puoi disconnettere gli account <b>rifiutando l'invito alla <i>Zona Studenti</i></b> da un client Matrix.
+            </p>
+        </details>
+        <details>
+            <summary>Vuoi eliminare i tuoi dati da Loki?</summary>
+            <p>
+                Puoi eliminare tutti i tuoi dati da Loki <b>lasciando lo spazio <i>Unimore</i></b> da un client Matrix.
+            </p>
+            <p class="xs">
+                Attenzione: riunendoti allo spazio verrai nuovamente registrato da Loki!
+            </p>
+        </details>
+    </div>
+{% endblock %}
