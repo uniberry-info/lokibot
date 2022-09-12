@@ -1,26 +1,8 @@
-import coloredlogs
 import logging
 import asyncio
+import lokiunimore.utils.logs
 
-coloredlogs.install(
-    logger=logging.getLogger("lokiunimore"),
-    level="DEBUG",
-    fmt="{asctime} | {name:<32} | {levelname:>8} | {message}",
-    style="{",
-    level_styles=dict(
-        debug=dict(color="white"),
-        info=dict(color="cyan"),
-        warning=dict(color="yellow"),
-        error=dict(color="red"),
-        critical=dict(color="red", bold=True),
-    ),
-    field_styles=dict(
-        asctime=dict(color='magenta'),
-        levelname=dict(color='blue', bold=True),
-        name=dict(color='blue'),
-    ),
-    isatty=True,
-)
+lokiunimore.utils.logs.install_log_handler(logging.getLogger("lokiunimore"))
 
 from lokiunimore.matrix.client import client
 from lokiunimore.config import MATRIX_USER_SECRET

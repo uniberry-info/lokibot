@@ -8,18 +8,13 @@ from lokiunimore.matrix.database import engine
 from lokiunimore.matrix.templates.messages import WELCOME_MESSAGE_TEXT, WELCOME_MESSAGE_HTML, SUCCESS_MESSAGE_TEXT, SUCCESS_MESSAGE_HTML, GOODBYE_MESSAGE_TEXT, GOODBYE_MESSAGE_HTML, UNLINK_MESSAGE_TEXT, UNLINK_MESSAGE_HTML
 from lokiunimore.matrix.client_class import ExtendedAsyncClient, RequestError
 from lokiunimore.matrix.event_filtering import filter_processed_events
-from lokiunimore.config import MATRIX_HOMESERVER, MATRIX_USER_ID, MATRIX_STORE_DIR, MATRIX_PUBLIC_SPACE_ID, MATRIX_PRIVATE_SPACE_ID, FLASK_BASE_URL
+from lokiunimore.config import MATRIX_HOMESERVER, MATRIX_USER_ID, MATRIX_PUBLIC_SPACE_ID, MATRIX_PRIVATE_SPACE_ID, FLASK_BASE_URL
 from lokiunimore.sql.tables import MatrixUser
 
 
 client = ExtendedAsyncClient(
     homeserver=MATRIX_HOMESERVER.__wrapped__,
     user=MATRIX_USER_ID.__wrapped__,
-    store_path=str(MATRIX_STORE_DIR.__wrapped__),
-    config=nio.AsyncClientConfig(
-        store_sync_tokens=True,
-        store=nio.store.database.DefaultStore,
-    ),
 )
 """
 The bot's Matrix client, powered by :mod:`nio`.

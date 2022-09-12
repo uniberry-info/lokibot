@@ -40,18 +40,6 @@ def MATRIX_USER_SECRET(val: str) -> str:
 
 
 @config.optional()
-def MATRIX_STORE_DIR(val: str | None) -> pathlib.Path:
-    """
-    The directory where Matrix session data should be stored in.
-    If it doesn't exist, it will be created before starting the bot.
-    Defaults to `./session`.
-    """
-    if not val:
-        return pathlib.Path("./session")
-    return pathlib.Path(val)
-
-
-@config.optional()
 def MATRIX_SKIP_EVENTS(val: str | None) -> bool:
     """
     Set this to `true` to have the Matrix client skip processing all events happened until now.
@@ -205,7 +193,6 @@ __all__ = (
     "MATRIX_HOMESERVER",
     "MATRIX_USER_ID",
     "MATRIX_USER_SECRET",
-    "MATRIX_STORE_DIR",
     "MATRIX_SKIP_EVENTS",
     "MATRIX_PUBLIC_SPACE_ID",
     "MATRIX_PUBLIC_SPACE_ALIAS",

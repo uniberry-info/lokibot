@@ -6,7 +6,7 @@ import werkzeug.exceptions
 import authlib.integrations.flask_client
 import authlib.integrations.base_client
 import logging
-import requests
+import flask.logging
 
 log = logging.getLogger(__name__)
 
@@ -32,6 +32,7 @@ app.config.update({
     "SQLALCHEMY_DATABASE_URI": SQLALCHEMY_DATABASE_URL.__wrapped__,
     "SQLALCHEMY_TRACK_MODIFICATIONS": False,
 })
+app.logger.removeHandler(flask.logging.default_handler)
 
 
 db = flask_sqlalchemy.SQLAlchemy(app=app, metadata=TableDeclarativeBase.metadata)
