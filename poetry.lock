@@ -59,14 +59,6 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
-name = "atomicwrites"
-version = "1.4.1"
-description = "Atomic file writes."
-category = "main"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-
-[[package]]
 name = "attrs"
 version = "22.1.0"
 description = "Classes Without Boilerplate"
@@ -82,7 +74,7 @@ tests_no_zope = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy 
 
 [[package]]
 name = "Authlib"
-version = "1.0.1"
+version = "1.1.0"
 description = "The ultimate Python library in building OAuth and OpenID Connect servers and clients."
 category = "main"
 optional = false
@@ -90,14 +82,6 @@ python-versions = "*"
 
 [package.dependencies]
 cryptography = ">=3.2"
-
-[[package]]
-name = "cachetools"
-version = "4.2.4"
-description = "Extensible memoizing collections and decorators"
-category = "main"
-optional = false
-python-versions = "~=3.5"
 
 [[package]]
 name = "certifi"
@@ -413,16 +397,12 @@ python-versions = ">=3.6.1,<4.0.0"
 aiofiles = ">=0.6.0,<0.7.0"
 aiohttp = ">=3.7.4,<4.0.0"
 aiohttp-socks = ">=0.7.0,<0.8.0"
-atomicwrites = {version = ">=1.4.0,<2.0.0", optional = true, markers = "extra == \"e2e\""}
-cachetools = {version = ">=4.2.1,<5.0.0", optional = true, markers = "extra == \"e2e\""}
 future = ">=0.18.2,<0.19.0"
 h11 = ">=0.12.0,<0.13.0"
 h2 = ">=4.0.0,<5.0.0"
 jsonschema = ">=3.2.0,<4.0.0"
 logbook = ">=1.5.3,<2.0.0"
-peewee = {version = ">=3.14.4,<4.0.0", optional = true, markers = "extra == \"e2e\""}
 pycryptodome = ">=3.10.1,<4.0.0"
-python-olm = {version = ">=3.1.3,<4.0.0", optional = true, markers = "extra == \"e2e\""}
 unpaddedbase64 = ">=2.1.0,<3.0.0"
 
 [package.extras]
@@ -435,14 +415,6 @@ description = "multidict implementation"
 category = "main"
 optional = false
 python-versions = ">=3.7"
-
-[[package]]
-name = "peewee"
-version = "3.15.2"
-description = "a little orm"
-category = "main"
-optional = false
-python-versions = "*"
 
 [[package]]
 name = "psycopg2"
@@ -494,18 +466,6 @@ python-versions = ">=3.7"
 
 [package.extras]
 cli = ["click (>=5.0)"]
-
-[[package]]
-name = "python-olm"
-version = "3.1.3"
-description = "python CFFI bindings for the olm cryptographic ratchet library"
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-cffi = ">=1.0.0"
-future = "*"
 
 [[package]]
 name = "python-socks"
@@ -645,7 +605,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "92916cbc1d217626decb6abaf0826f386539f368484de42e1a2a4e2ed4eaa408"
+content-hash = "3dfda7bf13250ef66ae3fc742d21fa32e5f66b925c53fbc9d2663f06a7cceaa1"
 
 [metadata.files]
 aiofiles = [
@@ -738,20 +698,13 @@ async-timeout = [
     {file = "async-timeout-4.0.2.tar.gz", hash = "sha256:2163e1640ddb52b7a8c80d0a67a08587e5d245cc9c553a74a847056bc2976b15"},
     {file = "async_timeout-4.0.2-py3-none-any.whl", hash = "sha256:8ca1e4fcf50d07413d66d1a5e416e42cfdf5851c981d679a09851a6853383b3c"},
 ]
-atomicwrites = [
-    {file = "atomicwrites-1.4.1.tar.gz", hash = "sha256:81b2c9071a49367a7f770170e5eec8cb66567cfbbc8c73d20ce5ca4a8d71cf11"},
-]
 attrs = [
     {file = "attrs-22.1.0-py2.py3-none-any.whl", hash = "sha256:86efa402f67bf2df34f51a335487cf46b1ec130d02b8d39fd248abfd30da551c"},
     {file = "attrs-22.1.0.tar.gz", hash = "sha256:29adc2665447e5191d0e7c568fde78b21f9672d344281d0c6e1ab085429b22b6"},
 ]
 Authlib = [
-    {file = "Authlib-1.0.1-py2.py3-none-any.whl", hash = "sha256:1286e2d5ef5bfe5a11cc2d0a0d1031f0393f6ce4d61f5121cfe87fa0054e98bd"},
-    {file = "Authlib-1.0.1.tar.gz", hash = "sha256:6e74a4846ac36dfc882b3cc2fbd3d9eb410a627f2f2dc11771276655345223b1"},
-]
-cachetools = [
-    {file = "cachetools-4.2.4-py3-none-any.whl", hash = "sha256:92971d3cb7d2a97efff7c7bb1657f21a8f5fb309a37530537c71b1774189f2d1"},
-    {file = "cachetools-4.2.4.tar.gz", hash = "sha256:89ea6f1b638d5a73a4f9226be57ac5e4f399d22770b92355f92dcb0f7f001693"},
+    {file = "Authlib-1.1.0-py2.py3-none-any.whl", hash = "sha256:be4b6a1dea51122336c210a6945b27a105b9ac572baffd15b07bcff4376c1523"},
+    {file = "Authlib-1.1.0.tar.gz", hash = "sha256:0a270c91409fc2b7b0fbee6996e09f2ee3187358762111a9a4225c874b94e891"},
 ]
 certifi = [
     {file = "certifi-2022.6.15.1-py3-none-any.whl", hash = "sha256:43dadad18a7f168740e66944e4fa82c6611848ff9056ad910f8f7a3e46ab89e0"},
@@ -1196,9 +1149,6 @@ multidict = [
     {file = "multidict-6.0.2-cp39-cp39-win_amd64.whl", hash = "sha256:4bae31803d708f6f15fd98be6a6ac0b6958fcf68fda3c77a048a4f9073704aae"},
     {file = "multidict-6.0.2.tar.gz", hash = "sha256:5ff3bd75f38e4c43f1f470f2df7a4d430b821c4ce22be384e1459cb57d6bb013"},
 ]
-peewee = [
-    {file = "peewee-3.15.2.tar.gz", hash = "sha256:94d8eb7fc2b8d97d6216382bf5961239645dc9e2473b0e732eb6c79c920c4768"},
-]
 psycopg2 = [
     {file = "psycopg2-2.9.3-cp310-cp310-win32.whl", hash = "sha256:083707a696e5e1c330af2508d8fab36f9700b26621ccbcb538abe22e15485362"},
     {file = "psycopg2-2.9.3-cp310-cp310-win_amd64.whl", hash = "sha256:d3ca6421b942f60c008f81a3541e8faf6865a28d5a9b48544b0ee4f40cac7fca"},
@@ -1278,9 +1228,6 @@ pyrsistent = [
 python-dotenv = [
     {file = "python-dotenv-0.21.0.tar.gz", hash = "sha256:b77d08274639e3d34145dfa6c7008e66df0f04b7be7a75fd0d5292c191d79045"},
     {file = "python_dotenv-0.21.0-py3-none-any.whl", hash = "sha256:1684eb44636dd462b66c3ee016599815514527ad99965de77f43e0944634a7e5"},
-]
-python-olm = [
-    {file = "python-olm-3.1.3.tar.gz", hash = "sha256:9a6c6133ce3777788c88e3f18b13c5b36a2f76ed1a0e774d1a48adf542fee871"},
 ]
 python-socks = [
     {file = "python-socks-2.0.3.tar.gz", hash = "sha256:e3a9ca8e554733862ce4d8ce1d10efb480fd3a3acdafd03393943ec00c98ba8a"},
