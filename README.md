@@ -4,6 +4,8 @@ Gatekeeper bot for the Unimore Informatica unofficial Matrix space
 
 \[ [**Website**](https://loki.steffo.eu) | [PyPI](https://pypi.org/project/lokiunimore/) \]
 
+> TIP: You may be looking for its predecessor, [Thor Bot](https://github.com/Steffo99/thorunimore).
+
 ![](lokiunimore/web/static/opengraph.png)
 
 ## Functionality
