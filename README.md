@@ -1,4 +1,4 @@
-# Loki Bot
+# Loki
 
 Matrix room gatekeeper bot for the unofficial Unimore space
 
