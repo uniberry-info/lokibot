@@ -22,7 +22,7 @@ build-backend = "poetry.core.masonry.api"
 name = "lokiunimore"
 
 # The version of the package.
-version = "0.2.0"
+version = "0.3.0"
 
 # A brief, one-sentence description about your project.
 description = "Matrix room gatekeeper bot for the unofficial Unimore space"
