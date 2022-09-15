@@ -454,14 +454,19 @@ class LokiClient(ExtendedAsyncClient):
         log.debug(f"Notified user of the account deletion: {user_id}")
 
         log.debug(f"Finding room hierarchy of the public space...")
-        hierarchy = await self.room_hierarchy(MATRIX_PUBLIC_SPACE_ID.__wrapped__, max_depth=9, suggested_only=False)
+        public_hierarchy = await self.room_hierarchy(MATRIX_PUBLIC_SPACE_ID.__wrapped__, max_depth=9, suggested_only=False)
+
+        log.debug(f"Finding room hierarchy of the private space...")
+        private_hierarchy = await self.room_hierarchy(MATRIX_PRIVATE_SPACE_ID.__wrapped__, max_depth=9, suggested_only=False)
+
+        hierarchy = [*public_hierarchy, *private_hierarchy]
 
         log.debug(f"Removing public space leaver from {len(hierarchy)} rooms: {user_id}")
         success_count = 0
         for room in hierarchy:
             room_id = room["room_id"]
             try:
-                await self.room_kick(room_id=room_id, user_id=user_id, reason="Left parent space")
+                await self.room_kick(room_id=room_id, user_id=user_id, reason="Loki account deleted")
             except RequestError as e:
                 log.warning(f"Could not remove public space leaver {user_id} from {room_id}: {e!r}")
             else:
@@ -511,7 +516,7 @@ class LokiClient(ExtendedAsyncClient):
         for room in hierarchy:
             room_id = room["room_id"]
             try:
-                await self.room_kick(room_id=room_id, user_id=user_id, reason="Left child space")
+                await self.room_kick(room_id=room_id, user_id=user_id, reason="Loki account unlinked")
             except RequestError as e:
                 log.warning(f"Could not remove private space leaver {user_id} from {room_id}: {e}")
             else:
