@@ -3,8 +3,11 @@ import asyncio
 from lokiunimore.utils.logs import install_log_handler
 from lokiunimore.matrix.client import LokiClient
 from lokiunimore.config import MATRIX_USER_SECRET, MATRIX_HOMESERVER, MATRIX_USER_ID, SQLALCHEMY_DATABASE_URL
+from lokiunimore.utils.errors import install_sentry
 
 install_log_handler()
+install_sentry()
+
 loop = asyncio.new_event_loop()
 
 
