@@ -267,17 +267,22 @@ def filter_processed_events(f):
 
     @functools.wraps(f)
     async def wrapped(self, room: nio.MatrixRoom, event: nio.Event):
-        log.debug(f"Checking if event should be processed: {event.event_id}")
-        if self._event_processed_check(event):
-            if not MATRIX_SKIP_EVENTS.__wrapped__:
-                log.debug(f"Processing event: {event.event_id}")
-                await f(self, room, event)
+        if event_id := getattr(event, "event_id", None):
+            log.debug(f"Checking if event should be processed: {event_id}")
+            if self._event_processed_check(event):
+                if not MATRIX_SKIP_EVENTS.__wrapped__:
+                    log.debug(f"Processing event: {event_id}")
+                    await f(self, room, event)
+                else:
+                    log.debug(f"Skipping event due to MATRIX_SKIP_EVENTS: {event_id}")
+                log.debug(f"Marking event as processed: {event_id}")
+                self._event_processed_mark(event)
             else:
-                log.debug(f"Skipping event due to MATRIX_SKIP_EVENTS: {event.event_id}")
-            log.debug(f"Marking event as processed: {event.event_id}")
-            self._event_processed_mark(event)
+                log.debug(f"Skipping already processed event: {event_id}")
         else:
-            log.debug(f"Skipping already processed event: {event.event_id}")
+            log.debug(f"Received partial event with no id, which should always be processed")
+            await f(self, room, event)
+            log.debug(f"Processed partial event successfully")
 
     return wrapped
 
