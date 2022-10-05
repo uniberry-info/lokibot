@@ -42,7 +42,7 @@ $ poetry install
 > TIP: For easier venv management, you may want to set:
 > 
 > ```console
-> poetry config virtualenvs.in-project true
+> $ poetry config virtualenvs.in-project true
 > ```
 
 To activate the venv, run:
