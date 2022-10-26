@@ -16,6 +16,7 @@ import functools
 import sqlalchemy
 import sqlalchemy.orm
 import flask
+import sentry_sdk
 
 T = t.TypeVar("T")
 log = logging.getLogger(__name__)
@@ -347,185 +348,191 @@ class LokiClient(ExtendedAsyncClient):
         # Filters allow us to determine the event type in a better way
         event: nio.InviteMemberEvent | nio.RoomMemberEvent
 
-        # Catch events about myself immediately
-        if event.state_key == self.user_id:
-            # If I'm invited to a room, join it
-            if event.membership == "invite":
-                await self.__handle_received_invite(room)
+        with sentry_sdk.start_span(op="handling_membership_change", description="Deciding where to forward a membership change"):
+            # Catch events about myself immediately
+            if event.state_key == self.user_id:
+                # If I'm invited to a room, join it
+                if event.membership == "invite":
+                    await self.__handle_received_invite(room)
 
-        elif event.membership == "join":
-            # If somebody joins the parent space, notify them of my presence and send them their profile URL
-            if room.room_id == MATRIX_PUBLIC_SPACE_ID:
-                await self.__handle_public_space_joiner(event.state_key)
-            # If somebody joins the child space, notify them of the successful login
-            elif room.room_id == MATRIX_PRIVATE_SPACE_ID:
-                await self.__handle_private_space_joiner(event.state_key)
+            elif event.membership == "join":
+                # If somebody joins the parent space, notify them of my presence and send them their profile URL
+                if room.room_id == MATRIX_PUBLIC_SPACE_ID:
+                    await self.__handle_public_space_joiner(event.state_key)
+                # If somebody joins the child space, notify them of the successful login
+                elif room.room_id == MATRIX_PRIVATE_SPACE_ID:
+                    await self.__handle_private_space_joiner(event.state_key)
 
-        elif event.membership == "leave":
-            # If somebody leaves the parent space, remove them from all subrooms, delete their account, and finally notify them
-            if room.room_id == MATRIX_PUBLIC_SPACE_ID:
-                await self.__handle_public_space_leaver(event.state_key)
-            # If somebody leaves the child space, remove them from all subrooms, delete their linking, and finally notify them
-            elif room.room_id == MATRIX_PRIVATE_SPACE_ID:
-                await self.__handle_private_space_leaver(event.state_key)
+            elif event.membership == "leave":
+                # If somebody leaves the parent space, remove them from all subrooms, delete their account, and finally notify them
+                if room.room_id == MATRIX_PUBLIC_SPACE_ID:
+                    await self.__handle_public_space_leaver(event.state_key)
+                # If somebody leaves the child space, remove them from all subrooms, delete their linking, and finally notify them
+                elif room.room_id == MATRIX_PRIVATE_SPACE_ID:
+                    await self.__handle_private_space_leaver(event.state_key)
 
-        elif event.membership == "ban":
-            # TODO: If somebody is banned from the parent space... propagate the ban?
-            if room.room_id == MATRIX_PUBLIC_SPACE_ID:
-                await self.__handle_public_space_leaver(event.state_key)
-            # TODO: If somebody is banned from the child space... propagate the ban?
-            elif room.room_id == MATRIX_PRIVATE_SPACE_ID:
-                await self.__handle_private_space_leaver(event.state_key)
+            elif event.membership == "ban":
+                # TODO: If somebody is banned from the parent space... propagate the ban?
+                if room.room_id == MATRIX_PUBLIC_SPACE_ID:
+                    await self.__handle_public_space_leaver(event.state_key)
+                # TODO: If somebody is banned from the child space... propagate the ban?
+                elif room.room_id == MATRIX_PRIVATE_SPACE_ID:
+                    await self.__handle_private_space_leaver(event.state_key)
 
     async def __handle_received_invite(self, room: nio.MatrixRoom):
-        log.debug(f"Received invite to: {room.room_id}")
-        await self.join(room.room_id)
-        log.info(f"Accepted invite to: {room.room_id}")
+        with sentry_sdk.start_span(op="handling_received_invite", description="Handling a received room invite"):
+            log.debug(f"Received invite to: {room.room_id}")
+            await self.join(room.room_id)
+            log.info(f"Accepted invite to: {room.room_id}")
 
     async def __handle_public_space_joiner(self, user_id: str):
-        log.debug(f"User joined public space: {user_id}")
+        with sentry_sdk.start_span(op="handling_public_space_joiner", description="Handling a user who joined the public space"):
+            log.debug(f"User joined public space: {user_id}")
 
-        log.debug(f"Creating MatrixUser for: {user_id}")
-        with self._sqla_session() as session:
-            session: sqlalchemy.orm.Session
-            matrix_user = MatrixUser(id=user_id)
-            matrix_user = session.merge(matrix_user)
-            session.commit()
-            log.debug(f"Created MatrixUser for: {user_id}")
-            token = matrix_user.token
+            log.debug(f"Creating MatrixUser for: {user_id}")
+            with self._sqla_session() as session:
+                session: sqlalchemy.orm.Session
+                matrix_user = MatrixUser(id=user_id)
+                matrix_user = session.merge(matrix_user)
+                session.commit()
+                log.debug(f"Created MatrixUser for: {user_id}")
+                token = matrix_user.token
 
-        log.debug(f"Notifying user of the account creation: {user_id}")
-        formatting = dict(
-            username_text=self.user_id,
-            username_html=await self.mention_html(self.user_id),
-            profile_url=self._loki_web_profile(token),
-        )
-        await self.room_send_message_html(
-            await self.find_or_create_pm_room(user_id),
-            text=WELCOME_MESSAGE_TEXT.format(**formatting),
-            html=WELCOME_MESSAGE_HTML.format(**formatting)
-        )
-        log.debug(f"Notified user of the account creation: {user_id}")
+            log.debug(f"Notifying user of the account creation: {user_id}")
+            formatting = dict(
+                username_text=self.user_id,
+                username_html=await self.mention_html(self.user_id),
+                profile_url=self._loki_web_profile(token),
+            )
+            await self.room_send_message_html(
+                await self.find_or_create_pm_room(user_id),
+                text=WELCOME_MESSAGE_TEXT.format(**formatting),
+                html=WELCOME_MESSAGE_HTML.format(**formatting)
+            )
+            log.debug(f"Notified user of the account creation: {user_id}")
 
-        log.info(f"Handled joiner of public space: {user_id}")
+            log.info(f"Handled joiner of public space: {user_id}")
 
     async def __handle_private_space_joiner(self, user_id: str):
-        log.info(f"User joined private space: {user_id}")
+        with sentry_sdk.start_span(op="handling_private_space_joiner", description="Handling a user who joined the private space"):
+            log.info(f"User joined private space: {user_id}")
 
-        log.debug(f"Setting MatrixUser as joined for: {user_id}")
-        with self._sqla_session() as session:
-            session: sqlalchemy.orm.Session
-            matrix_user: MatrixUser = session.query(MatrixUser).get(user_id)
-            matrix_user.joined_private_space = True
-            session.commit()
-            log.debug(f"Set MatrixUser as joined for: {user_id}")
-            token = matrix_user.token
+            log.debug(f"Setting MatrixUser as joined for: {user_id}")
+            with self._sqla_session() as session:
+                session: sqlalchemy.orm.Session
+                matrix_user: MatrixUser = session.query(MatrixUser).get(user_id)
+                matrix_user.joined_private_space = True
+                session.commit()
+                log.debug(f"Set MatrixUser as joined for: {user_id}")
+                token = matrix_user.token
 
-        log.debug(f"Notifying user of the account link: {user_id}")
-        formatting = dict(
-            profile_url=self._loki_web_profile(token),
-        )
-        await self.room_send_message_html(
-            await self.find_or_create_pm_room(user_id),
-            text=SUCCESS_MESSAGE_TEXT.format(**formatting),
-            html=SUCCESS_MESSAGE_HTML.format(**formatting)
-        )
-        log.debug(f"Notified user of the account link: {user_id}")
+            log.debug(f"Notifying user of the account link: {user_id}")
+            formatting = dict(
+                profile_url=self._loki_web_profile(token),
+            )
+            await self.room_send_message_html(
+                await self.find_or_create_pm_room(user_id),
+                text=SUCCESS_MESSAGE_TEXT.format(**formatting),
+                html=SUCCESS_MESSAGE_HTML.format(**formatting)
+            )
+            log.debug(f"Notified user of the account link: {user_id}")
 
-        log.info(f"Handled joiner of private space: {user_id}")
+            log.info(f"Handled joiner of private space: {user_id}")
 
     async def __handle_public_space_leaver(self, user_id: str):
-        log.info(f"User left public space: {user_id}")
+        with sentry_sdk.start_span(op="handling_public_space_leaver", description="Handling a user who left the public space"):
+            log.info(f"User left public space: {user_id}")
 
-        log.debug(f"Deleting MatrixUser for: {user_id}")
-        with self._sqla_session() as session:
-            session: sqlalchemy.orm.Session
-            matrix_user: MatrixUser = session.query(MatrixUser).get(user_id)
-            if matrix_user is None:
-                log.warning(f"User left public space without having a pre-existent record in the db: {user_id}")
-            else:
-                if matrix_user.account is not None and len(matrix_user.account.matrix_users) == 1:
-                    session.delete(matrix_user.account)
-                session.delete(matrix_user)
-                session.commit()
-                log.debug(f"Deleted MatrixUser for: {user_id}")
+            log.debug(f"Deleting MatrixUser for: {user_id}")
+            with self._sqla_session() as session:
+                session: sqlalchemy.orm.Session
+                matrix_user: MatrixUser = session.query(MatrixUser).get(user_id)
+                if matrix_user is None:
+                    log.warning(f"User left public space without having a pre-existent record in the db: {user_id}")
+                else:
+                    if matrix_user.account is not None and len(matrix_user.account.matrix_users) == 1:
+                        session.delete(matrix_user.account)
+                    session.delete(matrix_user)
+                    session.commit()
+                    log.debug(f"Deleted MatrixUser for: {user_id}")
 
-        log.debug(f"Notifying user of the account deletion: {user_id}")
-        await self.room_send_message_html(
-            await self.find_or_create_pm_room(user_id),
-            text=GOODBYE_MESSAGE_TEXT,
-            html=GOODBYE_MESSAGE_HTML
-        )
-        log.debug(f"Notified user of the account deletion: {user_id}")
+            log.debug(f"Notifying user of the account deletion: {user_id}")
+            await self.room_send_message_html(
+                await self.find_or_create_pm_room(user_id),
+                text=GOODBYE_MESSAGE_TEXT,
+                html=GOODBYE_MESSAGE_HTML
+            )
+            log.debug(f"Notified user of the account deletion: {user_id}")
 
-        log.debug(f"Finding room hierarchy of the public space...")
-        public_hierarchy = await self.room_hierarchy(MATRIX_PUBLIC_SPACE_ID.__wrapped__, max_depth=9, suggested_only=False)
+            log.debug(f"Finding room hierarchy of the public space...")
+            public_hierarchy = await self.room_hierarchy(MATRIX_PUBLIC_SPACE_ID.__wrapped__, max_depth=9, suggested_only=False)
 
-        log.debug(f"Finding room hierarchy of the private space...")
-        private_hierarchy = await self.room_hierarchy(MATRIX_PRIVATE_SPACE_ID.__wrapped__, max_depth=9, suggested_only=False)
+            log.debug(f"Finding room hierarchy of the private space...")
+            private_hierarchy = await self.room_hierarchy(MATRIX_PRIVATE_SPACE_ID.__wrapped__, max_depth=9, suggested_only=False)
 
-        hierarchy = [*public_hierarchy, *private_hierarchy]
+            hierarchy = [*public_hierarchy, *private_hierarchy]
 
-        log.debug(f"Removing public space leaver from {len(hierarchy)} rooms: {user_id}")
-        success_count = 0
-        for room in hierarchy:
-            room_id = room["room_id"]
-            try:
-                await self.room_kick(room_id=room_id, user_id=user_id, reason="Loki account deleted")
-            except RequestError as e:
-                log.warning(f"Could not remove public space leaver {user_id} from {room_id}: {e!r}")
-            else:
-                success_count += 1
-        log.debug(f"Removed public space leaver from {success_count} rooms: {user_id}")
+            log.debug(f"Removing public space leaver from {len(hierarchy)} rooms: {user_id}")
+            success_count = 0
+            for room in hierarchy:
+                room_id = room["room_id"]
+                try:
+                    await self.room_kick(room_id=room_id, user_id=user_id, reason="Loki account deleted")
+                except RequestError as e:
+                    log.warning(f"Could not remove public space leaver {user_id} from {room_id}: {e!r}")
+                else:
+                    success_count += 1
+            log.debug(f"Removed public space leaver from {success_count} rooms: {user_id}")
 
-        log.info(f"Handled leaver of public space: {user_id}")
+            log.info(f"Handled leaver of public space: {user_id}")
 
     async def __handle_private_space_leaver(self, user_id: str):
-        log.debug(f"User left private space: {user_id}")
+        with sentry_sdk.start_span(op="handling_private_space_leaver", description="Handling a user who left the private space"):
+            log.debug(f"User left private space: {user_id}")
 
-        log.debug(f"Unlinking account for: {user_id}")
-        with self._sqla_session() as session:
-            session: sqlalchemy.orm.Session
-            matrix_user: MatrixUser = session.query(MatrixUser).get(user_id)
-            if matrix_user is None:
-                log.warning(f"User left private space without having a pre-existent record in the db: {user_id}")
-                return
-            elif matrix_user.account is None:
-                log.warning(f"User left private space without having a linked account in the db: {user_id}")
-                token = matrix_user.token
-            else:
-                if len(matrix_user.account.matrix_users) == 1:
-                    session.delete(matrix_user.account)
-                matrix_user.account = None
-                matrix_user.joined_private_space = False
-                session.commit()
-                log.debug(f"Unlinked account for: {user_id}")
-                token = matrix_user.token
+            log.debug(f"Unlinking account for: {user_id}")
+            with self._sqla_session() as session:
+                session: sqlalchemy.orm.Session
+                matrix_user: MatrixUser = session.query(MatrixUser).get(user_id)
+                if matrix_user is None:
+                    log.warning(f"User left private space without having a pre-existent record in the db: {user_id}")
+                    return
+                elif matrix_user.account is None:
+                    log.warning(f"User left private space without having a linked account in the db: {user_id}")
+                    token = matrix_user.token
+                else:
+                    if len(matrix_user.account.matrix_users) == 1:
+                        session.delete(matrix_user.account)
+                    matrix_user.account = None
+                    matrix_user.joined_private_space = False
+                    session.commit()
+                    log.debug(f"Unlinked account for: {user_id}")
+                    token = matrix_user.token
 
-        log.debug(f"Notifying user of the account unlinking: {user_id}")
-        formatting = dict(
-            profile_url=self._loki_web_profile(token),
-        )
-        await self.room_send_message_html(
-            await self.find_or_create_pm_room(user_id),
-            text=UNLINK_MESSAGE_TEXT.format(**formatting),
-            html=UNLINK_MESSAGE_HTML.format(**formatting)
-        )
-        log.debug(f"Notified user of the account unlinking: {user_id}")
+            log.debug(f"Notifying user of the account unlinking: {user_id}")
+            formatting = dict(
+                profile_url=self._loki_web_profile(token),
+            )
+            await self.room_send_message_html(
+                await self.find_or_create_pm_room(user_id),
+                text=UNLINK_MESSAGE_TEXT.format(**formatting),
+                html=UNLINK_MESSAGE_HTML.format(**formatting)
+            )
+            log.debug(f"Notified user of the account unlinking: {user_id}")
 
-        log.debug(f"Finding room hierarchy of the private space...")
-        hierarchy = await self.room_hierarchy(MATRIX_PRIVATE_SPACE_ID.__wrapped__, max_depth=9, suggested_only=False)
+            log.debug(f"Finding room hierarchy of the private space...")
+            hierarchy = await self.room_hierarchy(MATRIX_PRIVATE_SPACE_ID.__wrapped__, max_depth=9, suggested_only=False)
 
-        log.debug(f"Removing private space leaver from {len(hierarchy)} rooms: {user_id}")
-        success_count = 0
-        for room in hierarchy:
-            room_id = room["room_id"]
-            try:
-                await self.room_kick(room_id=room_id, user_id=user_id, reason="Loki account unlinked")
-            except RequestError as e:
-                log.warning(f"Could not remove private space leaver {user_id} from {room_id}: {e}")
-            else:
-                success_count += 1
-        log.debug(f"Removed private space leaver from {success_count} rooms: {user_id}")
+            log.debug(f"Removing private space leaver from {len(hierarchy)} rooms: {user_id}")
+            success_count = 0
+            for room in hierarchy:
+                room_id = room["room_id"]
+                try:
+                    await self.room_kick(room_id=room_id, user_id=user_id, reason="Loki account unlinked")
+                except RequestError as e:
+                    log.warning(f"Could not remove private space leaver {user_id} from {room_id}: {e}")
+                else:
+                    success_count += 1
+            log.debug(f"Removed private space leaver from {success_count} rooms: {user_id}")
 
-        log.info(f"Handled leaver of private space: {user_id}")
+            log.info(f"Handled leaver of private space: {user_id}")

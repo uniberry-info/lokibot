@@ -202,6 +202,16 @@ def OIDC_EMAIL_REGEX(val: str) -> re.Pattern:
     return re.compile(val)
 
 
+@config.optional()
+def SENTRY_DSN(val: str | None) -> str | None:
+    """
+    The DSN to use to connect to Sentry.
+    If not specified, the Sentry integration is disabled.
+    https://docs.sentry.io/platforms/python/
+    """
+    return val
+
+
 __all__ = (
     "config",
     "MATRIX_HOMESERVER",
@@ -223,4 +233,5 @@ __all__ = (
     "OIDC_API_BASE_URL",
     "OIDC_SCOPES",
     "OIDC_EMAIL_REGEX",
+    "SENTRY_DSN",
 )
