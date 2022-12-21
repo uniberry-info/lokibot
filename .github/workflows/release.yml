@@ -126,6 +126,10 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           target: "entrypoint"
+          platforms: >-
+            linux/amd64,
+            linux/arm/v7,
+            linux/arm64/v8
           tags: >-
             ghcr.io/${{ steps.reponame.outputs.lowercase }}:${{ steps.semver.outputs.precedence }},
             ghcr.io/${{ steps.reponame.outputs.lowercase }}:${{ steps.semver.outputs.core }},
