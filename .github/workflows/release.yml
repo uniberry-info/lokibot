@@ -28,10 +28,10 @@ jobs:
           python-version: "3.10"
 
       - name: "🔨 Setup Poetry"
-        uses: abatilo/actions-poetry@v2.1.6
+        uses: abatilo/actions-poetry@v2.2.0
 
       - name: "🔨 Setup Poetry Python environment"
-        uses: Steffo99/actions-poetry-deps@v0.2.4
+        uses: Steffo99/actions-poetry-deps@v0.2.5
 
       - name: "🏗 Build package with Poetry"
         run: poetry build --no-interaction
@@ -64,7 +64,7 @@ jobs:
           path: dist/
 
       - name: "🌐 Create release"
-        uses: ncipollo/release-action@v1.10.0
+        uses: ncipollo/release-action@v1.11.2
         with:
           artifactErrorsFailBuild: true
           artifacts: dist/*
@@ -102,7 +102,7 @@ jobs:
 
       - name: "❓ Find the release semantic version"
         id: semver
-        uses: Steffo99/actions-semver@v0.3.4
+        uses: Steffo99/actions-semver@v0.3.5
         with:
           string: ${{ github.ref_name }}
 
@@ -118,7 +118,7 @@ jobs:
 
       - name: "🔽 Find the lowercase name of the repository"
         id: reponame
-        uses: ASzc/change-string-case-action@v2
+        uses: ASzc/change-string-case-action@v5
         with: 
           string: ${{ github.repository }}
 
