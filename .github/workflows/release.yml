@@ -124,7 +124,7 @@ jobs:
 
       # https://github.com/docker/buildx/issues/493
       - name: "Install extra qemu platforms"
-        cmd: >-
+        run: >-
           docker run 
           --privileged 
           --rm 
