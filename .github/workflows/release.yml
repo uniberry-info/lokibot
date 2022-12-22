@@ -1,161 +1,36 @@
-name: "Automated release"
+name: "Release new version"
 
 on:
+  # Creation of a new tag starting with v
   push: 
     tags:
       - "v*"
 
-
-defaults:
-  run:
-    shell: bash
-
-
 jobs:
-  tests:
-    uses: "./.github/workflows/tests.yml"
+  test:
+    uses: ./.github/workflows/test.yml
   
-  build-package:
-    name: "Build Python package"
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Checkout repository"
-        uses: actions/checkout@v3
+  build:
+    uses: Steffo99/.github/.github/workflows/build-poetry.yml
 
-      - name: "Setup Python"
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-
-      - name: "Setup Poetry"
-        uses: abatilo/actions-poetry@v2.2.0
-
-      - name: "Setup Poetry Python environment"
-        uses: Steffo99/actions-poetry-deps@v0.2.5
-
-      - name: "Build package with Poetry"
-        run: poetry build --no-interaction
-    
-      - name: "Upload code package to artifacts"
-        uses: actions/upload-artifact@v3
-        with:
-          name: "Build"
-          path: dist/*.tar.gz
-          if-no-files-found: error
-
-      - name: "Upload wheel package to artifacts"
-        uses: actions/upload-artifact@v3
-        with:
-          name: "Build"
-          path: dist/*.whl
-          if-no-files-found: warn
-
-  publish-github:
-    name: "Publish release on GitHub"
+  github:
+    uses: Steffo99/.github/.github/workflows/release-poetry-github.yml
     needs:
-      - "tests"
-      - "build-package"
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Download built packages from artifacts"
-        uses: actions/download-artifact@v3
-        with:
-          name: "Build"
-          path: dist/
+      - test
+      - build
 
-      - name: "Create release"
-        uses: ncipollo/release-action@v1.11.2
-        with:
-          artifactErrorsFailBuild: true
-          artifacts: dist/*
-          draft: true
-          generateReleaseNotes: true
-
-  publish-pypi:
-    name: "Publish release on PyPI"
+  pypi:
+    uses: Steffo99/.github/.github/workflows/release-poetry-pypi.yml
     needs:
-      - "tests"
-      - "build-package"
-    runs-on: ubuntu-latest
-    steps:
-      - name: "⬇Download built packages from artifacts"
-        uses: actions/download-artifact@v3
-        with:
-          name: "Build"
-          path: dist/
+      - test
+      - build
 
-      - name: "Upload package"
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: "__token__"
-          password: ${{ secrets.PYPI_TOKEN }}
-
-  publish-docker:
-    name: "Build and publish Docker image on ghcr.io"
-    runs-on: ubuntu-latest
+  ghcrio:
+    uses: Steffo99/.github/.github/workflows/buildrelease-docker.yml
     needs:
-      - "tests"
-    strategy:
-      matrix:
-        include:
-          - platform: "linux/amd64"
-          - arch: "arm64"
-            platform: "linux/arm64/v8"
-    steps:
-      - name: "Checkout repository"
-        uses: actions/checkout@v2
+      - test
 
-      - name: "Find the release semantic version"
-        id: semver
-        uses: Steffo99/actions-semver@v0.3.5
-        with:
-          string: ${{ github.ref_name }}
-
-      - name: "Setup qemu"
-        uses: docker/setup-qemu-action@v2
-        if: ${{ matrix.arch }}
-        with:
-          platforms: ${{ matrix.arch }}
-
-      - name: "Setup Buildx"
-        uses: docker/setup-buildx-action@v2
-        with:
-          platforms: ${{ matrix.platform }}
-
-      - name: "Login to GitHub Containers"
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: "Find the lowercase name of the repository"
-        id: reponame
-        uses: ASzc/change-string-case-action@v5
-        with: 
-          string: ${{ github.repository }}
-
-      - name: "Build and push the Docker image"
-        uses: docker/build-push-action@v3
-        with:
-          target: "final"
-          platforms: ${{ matrix.platform }}
-          tags: >-
-            ghcr.io/${{ steps.reponame.outputs.lowercase }}:${{ steps.semver.outputs.precedence }},
-            ghcr.io/${{ steps.reponame.outputs.lowercase }}:${{ steps.semver.outputs.core }},
-            ghcr.io/${{ steps.reponame.outputs.lowercase }}:${{ steps.semver.outputs.pair }},
-            ghcr.io/${{ steps.reponame.outputs.lowercase }}:${{ steps.semver.outputs.major }},
-            ghcr.io/${{ steps.reponame.outputs.lowercase }}:latest
-          push: true
-
-  deploy-portainer:
-    name: "Deploy to Portainer"
-    runs-on: ubuntu-latest
+  portainer:
+    uses: Steffo99/.github/.github/workflows/deploy-portainer.yml
     needs:
-      - "publish-docker"
-    steps:
-      - name: "Trigger Portainer update webhook"
-        uses: fjogeleit/http-request-action@v1
-        with:
-          method: "POST"
-          url: "${{ secrets.PORTAINER_HOOK_URL }}"
+      - ghcrio
