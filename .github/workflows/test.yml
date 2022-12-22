@@ -22,4 +22,4 @@ on:
 
 jobs:
   test:
-    uses: Steffo99/.github/.github/workflows/test-poetry-compileall.yml
+    uses: Steffo99/.github/.github/workflows/test-poetry-compileall.yml@main
