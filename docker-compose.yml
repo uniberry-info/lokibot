@@ -23,7 +23,7 @@ services:
     command: >-
       gunicorn 
       -b 0.0.0.0:30035 
-      lokiunimore.web.app:rp_app"
+      lokiunimore.web.app:rp_app
     restart: unless-stopped
     ports:
       - "127.0.0.1:30035:30035"
