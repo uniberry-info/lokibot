@@ -39,7 +39,7 @@ services:
       lokiunimore.matrix
     restart: unless-stopped
     env_file:
-      - "./secrets/loki.env"
+      - "stack.env"
     depends_on:
       db:
         condition: service_healthy
