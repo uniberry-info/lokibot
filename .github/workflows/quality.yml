@@ -8,4 +8,4 @@ on:
 
 jobs:
   codeql:
-    uses: Steffo99/.github/.github/workflows/quality-python-codeql.yml
+    uses: Steffo99/.github/.github/workflows/quality-python-codeql.yml@main
