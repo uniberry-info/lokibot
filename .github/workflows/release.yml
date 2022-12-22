@@ -99,8 +99,6 @@ jobs:
       matrix:
         include:
           - platform: "linux/amd64"
-          - arch: "arm"
-            platform: "linux/arm/v7"
           - arch: "arm64"
             platform: "linux/arm64/v8"
     steps:
