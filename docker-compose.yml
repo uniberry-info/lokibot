@@ -1,3 +1,5 @@
+# To be used in Portainer
+
 version: "3.9"
 
 volumes:
@@ -19,7 +21,7 @@ services:
       - "db_data:/var/lib/postgresql/data"
 
   web:
-    build: "."
+    image: "ghcr.io/steffo99/lokiunimore:latest"
     command: >-
       gunicorn 
       -b 0.0.0.0:30035 
@@ -34,7 +36,7 @@ services:
         condition: service_healthy
 
   bot:
-    build: "."
+    image: "ghcr.io/steffo99/lokiunimore:latest"
     command: >- 
       lokiunimore.matrix
     restart: unless-stopped
