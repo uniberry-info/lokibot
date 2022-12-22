@@ -1,5 +1,5 @@
 FROM python:3-alpine AS system
-RUN apk add --update build-base python3-dev musl-dev postgresql-dev gcc rust cargo
+RUN apk add --update build-base python3-dev py-pip musl-dev libffi-dev libressl-dev postgresql-dev gcc rust cargo
 RUN pip install "poetry"
 
 FROM system AS workdir
