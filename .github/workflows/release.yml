@@ -134,3 +134,14 @@ jobs:
             ghcr.io/${{ steps.reponame.outputs.lowercase }}:latest
           push: true
 
+  deploy-portainer:
+    name: "Deploy to Portainer"
+    runs-on: ubuntu-latest
+    needs:
+      - "publish-docker"
+    steps:
+      - name: "Trigger Portainer update webhook"
+        uses: fjogeleit/http-request-action@v1
+        with:
+          method: "POST"
+          url: "${{ secrets.PORTAINER_HOOK_URL }}"
