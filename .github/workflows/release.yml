@@ -95,7 +95,6 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - "tests"
-      - "build-package"
     strategy:
       matrix:
         include:
