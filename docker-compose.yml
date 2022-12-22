@@ -1,0 +1,45 @@
+version: "3.9"
+
+volumes:
+  db_data:
+    driver: local
+
+services:
+  db:
+    image: "postgres:14"
+    restart: unless-stopped
+    env_file:
+      - "stack.env"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - "db_data:/var/lib/postgresql/data"
+
+  web:
+    build: "."
+    command: >-
+      gunicorn 
+      -b 0.0.0.0:30035 
+      lokiunimore.web.app:rp_app"
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:30035:30035"
+    env_file:
+      - "stack.env"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  bot:
+    build: "."
+    command: >- 
+      lokiunimore.matrix
+    restart: unless-stopped
+    env_file:
+      - "./secrets/loki.env"
+    depends_on:
+      db:
+        condition: service_healthy
