@@ -1,27 +1,96 @@
 {% extends "_base.html" %}
 
-{% block title_tab %}Home{% endblock %}
-{% block title_main %}Home{% endblock %}
+{% block title_tab %}Unimore Matrix{% endblock %}
+{% block title_main %}Unimore Matrix{% endblock %}
 
 {% block content %}
     <p>
-        <b>Loki</b> è un chat bot che regola l'accesso alla <b>Zona Studenti</b> dello spazio <a href="https://matrix.org">Matrix</a> non-ufficiale dell'Unimore.
+        Ciao! Sono <a href="https://www.steffo.eu"><abbr title="Stefano Pigozzi">Steffo</abbr></a>, e ti do il benvenuto a <strong>Unimore Matrix</strong>, la rete di chat <b>non ufficiali</b> dell'Unimore!
     </p>
     <p>
-        Per evitare che messaggi con contenuto potenzialmente sensibile vengano letti da soggetti che potrebbero usarli per effettuare <u>abusi di potere</u>, viene richiesta la <b>verifica delle proprie credenziali universitarie</b> a tutti gli studenti che desiderano accedere alla Zona Studenti.
+        La rete di chat è basata su <a href="https://matrix.org/">Matrix</a>, un protocollo per la messaggistica in tempo reale <b>aperto</b> e <b>decentralizzato</b>, che permette a ognuno di adeguarla al meglio per i suoi scopi!
     </p>
+    <div class="center">
+        <p class="xl">
+            <a href="https://matrix.to/#/{{ config.MATRIX_PUBLIC_SPACE_ALIAS }}" class="btn">Unisciti alla chat</a>
+        </p>
+        <p class="xs">
+            Si consigliano i client <a href="https://element.io/">Element</a>, <a href="https://cinny.in/">Cinny</a> e <a href="https://fluffychat.im/">FluffyChat</a>, che permettono di visualizzare formule matematiche direttamente nella chat.
+        </p>
+    </div>
     <hr/>
-    <p>
-        Se <b>non sei ancora membro</b> dello spazio Matrix pubblico, puoi usare questo link per entrare a farne parte:
-    </p>
-    <p class="center xl">
-        <a href="https://matrix.to/#/{{ config.MATRIX_PUBLIC_SPACE_ALIAS }}?client=element.io" class="btn"><code>{{ config.MATRIX_PUBLIC_SPACE_ALIAS }}</code></a>
-    </p>
+    <h3>
+       Com'è organizzata la rete?
+    </h3>
+    <div class="row-group">
+        <div class="row">
+            <div>
+                <p>
+                    La rete è divisa in due <i>spazi</i>:
+                </p>
+                <ul>
+                    <li>il primo, <b><i>Unimore</i></b>, è pubblico e accessibile a chiunque voglia entrare;</li>
+                    <li>il secondo, <b><i>Unimore Studenti</i></b>, è riservato agli studenti dell'Unimore che hanno <a href="#verify">verificato la loro identità</a>.</li>
+                </ul>
+            </div>
+            <img alt="L'elenco degli spazi, come visualizzato su Element." title="L'elenco degli spazi, come visualizzato su Element." src="{{ url_for("static", filename="spaces.png") }}">
+        </div>
+        <div class="row">
+            <div>
+                <p>
+                    A sua volta, ciascuno spazio è diviso in <i>stanze</i>, che <b>raggruppano i messaggi per argomento</b>, a cui potete decidere di <i>unirvi</i> per <b>riceverne i messaggi</b>.
+                </p>
+                <p>
+                    Ad esempio, potete decidere di entrare solo nelle stanze degli <b>insegnamenti che seguite</b>, evitando notifiche inutili.
+                </p>
+            </div>
+            <img alt="L'elenco delle stanze, come visualizzato su Element." title="L'elenco delle stanze, come visualizzato su Element." src="{{ url_for("static", filename="rooms.png") }}">
+        </div>
+    </div>
     <hr/>
-    <p>
-        Se <b>sei già membro</b>, dovresti aver ricevuto un messaggio da Loki contenente un link con ulteriori istruzioni:
-    </p>
-    <p class="center xl">
-        <a href="https://matrix.to/#/{{ config.MATRIX_USER_ID }}?client=element.io" class="btn"><code>{{ config.MATRIX_USER_ID }}</code></a>
-    </p>
+    <h3 id="verify">
+        Come faccio ad entrare in <i>Unimore Studenti</i>?
+    </h3>
+    <div class="row">
+        <div>
+            <p>
+                Una volta che sarai entrato nello spazio <i>Unimore</i>, riceverai automaticamente un messaggio da <b><img alt="" src="{{ url_for("static", filename="icon.png") }}"> Loki Bot</b> contenente il link per verificare la tua identità.
+            </p>
+            <p>
+                Cliccalo e <b>segui le istruzioni sul sito</b> per completare la verifica e ricevere un'invito all'altro spazio!
+            </p>
+            <p class="xs">
+                Se non hai ricevuto l'invito, o lo hai rifiutato per sbaglio, esci dallo spazio <i>Unimore</i> e rientra per ricevere di nuovo il link di verifica!
+            </p>
+        </div>
+        <img alt="Il messaggio per verificare l'identità inviato da Loki Bot." title="Il messaggio per verificare l'identità inviato da Loki Bot." src="{{ url_for("static", filename="verify.png") }}">
+    </div>
+    <hr/>
+    <h3>
+        Come mai è necessaria una verifica?
+    </h3>
+    <div class="row-group">
+        <div class="row">
+            <div>
+                <p>
+                    In seguito ad alcuni <em>avvenimenti sospetti</em> nella vecchia chat su Telegram e agli esami della sessione estiva 2020, abbiamo deciso tramite <a href="https://t.me/c/1189302381/71261">una votazione</a> di introdurre una <b>verifica per tutti gli utenti della chat</b>.
+                </p>
+                <p>
+                    Abbiamo mantenuto questo sistema per due anni, permettendo agli studenti di conversare e discutere dei vari insegnamenti con <b>maggiore sicurezza</b>.
+                </p>
+            </div>
+            <img alt="Un messaggio di verifica completata del vecchio bot." title="Un messaggio di verifica completata del vecchio bot." src="{{ url_for("static", filename="thor.png") }}">
+        </div>
+        <div class="row">
+            <div>
+                <p>
+                    Una volta passati a Matrix, abbiamo deciso di <b>mantenerlo attivo</b>, <b>aggiornandolo</b> in modo da sfruttare al massimo le funzionalità della nuova piattaforma.
+                </p>
+                <p>
+                    Non ho intenzione di usare i vostri dati per fini loschi nè di rivenderli a terze parti; per sicurezza, puoi andare a leggere l'<a href="{{ url_for("page_privacy") }}">informativa sulla privacy</a> che ho scritto riguardo il processo di verifica!
+                </p>
+            </div>
+            <img alt="Screenshot di parte del codice del nuovo bot." title="Screenshot di parte del codice del nuovo bot." src="{{ url_for("static", filename="newcode.png") }}">
+        </div>
+    </div>
 {% endblock %}

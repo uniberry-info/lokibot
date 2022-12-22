@@ -8,37 +8,43 @@
         <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     </head>
     <body>
-        <hgroup>
-            <h1 id="title-loki">
-                <a href="{{ url_for("page_root") }}">
-                    <img alt="" src="{{ url_for("static", filename="icon.png") }}" width="64" height="64" id="icon"/>
-                    Loki
-                </a>
-            </h1>
-            <h2 id="title-main">
-                {% block title_main %}{% endblock %}
-            </h2>
-        </hgroup>
-        <main id="content">
-            {% block content %}{% endblock %}
-        </main>
-        <footer>
-            <hr/>
-            <span>
-                © 2022 <a href="https://www.steffo.eu">Stefano Pigozzi</a>
-            </span>
-            -
-            <span>
-                Licenza <a href="https://github.com/Steffo99/lokiunimore/blob/main/LICENSE.txt"><code>AGPL-3.0-or-later</code></a>
-            </span>
-            -
-            <span>
-                <a href="https://github.com/Steffo99/lokiunimore">Codice sorgente</a>
-            </span>
-            -
-            <span>
-                <a href="{{ url_for("page_privacy") }}">Informativa sulla privacy</a>
-            </span>
-        </footer>
+        <div id="site">
+            <header>
+                <hgroup>
+                    <h1 id="title-loki">
+                        <a href="{{ url_for("page_root") }}">
+                            <img alt="" src="{{ url_for("static", filename="icon.png") }}" width="64" height="64" id="icon"/>
+                            Loki
+                        </a>
+                    </h1>
+                    <h2 id="title-main">
+                        {% block title_main %}{% endblock %}
+                    </h2>
+                </hgroup>
+            </header>
+            <main id="content">
+                {% block content %}{% endblock %}
+            </main>
+            <footer>
+                <hr/>
+                <p class="xs">
+                    <span>
+                        © 2022 <a href="https://www.steffo.eu">Stefano Pigozzi</a>
+                    </span>
+                    -
+                    <span>
+                        Licenza <a href="https://github.com/Steffo99/lokiunimore/blob/main/LICENSE.txt"><code>AGPL-3.0-or-later</code></a>
+                    </span>
+                    -
+                    <span>
+                        <a href="https://github.com/Steffo99/lokiunimore">Codice sorgente</a>
+                    </span>
+                    -
+                    <span>
+                        <a href="{{ url_for("page_privacy") }}">Informativa sulla privacy di Loki</a>
+                    </span>
+                </p>
+            </footer>
+        </div>
     </body>
 </html>

@@ -5,15 +5,20 @@
 
 {% block content %}
     <hr/>
-    <h3>
-        Chi sei?
-    </h3>
-    <p>
-        Sono <b>Stefano Pigozzi</b>, lo studente magistrale che ha amministrato per anni il gruppo Telegram <b>Unimore Informatica</b>, e che ora sta effettuando la migrazione del gruppo verso Matrix, uno standard più versatile e libero per la messaggistica.
-    </p>
-    <p id="contact-me">
-        Se hai bisogno, puoi contattarmi su <a href="https://matrix.to/#/@steffo:ryg.one">Matrix</a>, <a href="https://t.me/Steffo">Telegram</a>, <a href="mailto:me@steffo.eu">via email</a> oppure sul <a href="https://fosstodon.org/@steffo">Fediverso</a>!
-    </p>
+    <div class="row">
+        <div>
+            <h3>
+                Chi sei?
+            </h3>
+            <p>
+                Sono <b>Stefano Pigozzi</b>, lo studente magistrale che ha amministrato per anni il gruppo Telegram <b>Unimore Informatica</b>, e che ora sta effettuando la migrazione del gruppo verso Matrix, uno standard più versatile e libero per la messaggistica.
+            </p>
+            <p id="contact-me">
+                Se hai bisogno, puoi contattarmi su <a href="https://matrix.to/#/@steffo:ryg.one">Matrix</a>, <a href="https://t.me/Steffo">Telegram</a>, <a href="mailto:me@steffo.eu">via email</a> oppure sul <a href="https://fosstodon.org/@steffo">Fediverso</a>!
+            </p>
+        </div>
+        <img alt="" src="{{ url_for("static", filename="s-192.png") }}">
+    </div>
     <hr/>
     <h3>
         Perchè hai bisogno dei miei dati?
@@ -114,14 +119,7 @@
     <p>
         In aggiunta, se sei insoddisfatto di come sta venendo svolto il trattamento, puoi <a href="#contact-me">contattarmi sempre a uno degli indirizzi menzionati in precedenza</a> per risolvere la questione, o, se sei ancora insoddisfatto, puoi contattare il <a href="https://www.garanteprivacy.it/">Garante della Privacy</a>.
     </p>
-    <p>
-        <small>Tieni conto che sono uno studente anche io, e che sto facendo il possibile per trattare i tuoi dati nel modo migliore che conosco...</small>
-    </p>
-    <hr/>
-    <h3>
-        Dove saranno inviate ulteriori modifiche a questa informativa?
-    </h3>
-    <p>
-        Ogni modifica all'informativa sarà notificata nella stanza pubblica <i>Unimore Matrix</i> (<a href="https://matrix.to/#/{{ config.MATRIX_HELP_ROOM_ALIAS }}?client=element.io"><code>{{ config.MATRIX_HELP_ROOM_ALIAS }}</code></a>).
+    <p class="xs">
+        Ricorda che sono uno studente anche io, e che sto facendo il possibile per trattare i tuoi dati nel modo migliore che conosco; se ti accorgi di un bug, o hai qualche problema riguardo come gestisco i dati, fammelo sapere: <b>sono aperto a critiche e miglioramenti</b>!
     </p>
 {% endblock %}
