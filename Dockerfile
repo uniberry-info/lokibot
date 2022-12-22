@@ -1,7 +1,6 @@
-FROM python:3-buster AS system
-RUN apt-get update -y
-RUN apt-get upgrade -y
-RUN apt-get install -y rustc cargo
+FROM python:3-alpine AS system
+RUN apk add --update build-base python3-dev musl-dev postgresql-dev gcc rust cargo
+RUN pip install "poetry"
 
 FROM system AS workdir
 WORKDIR /usr/src/lokiunimore
@@ -9,7 +8,6 @@ WORKDIR /usr/src/lokiunimore
 FROM system AS dependencies
 COPY pyproject.toml ./pyproject.toml
 COPY poetry.lock ./poetry.lock
-RUN pip install "poetry"
 RUN poetry install --no-root --no-dev
 
 FROM dependencies AS package
@@ -17,9 +15,9 @@ COPY . .
 RUN poetry install
 
 FROM package AS entrypoint
-# Remember to change the CMD in Docker Compose!
 ENV PYTHONUNBUFFERED=1
 ENTRYPOINT ["poetry", "run", "python", "-m"]
+# Remember to change the CMD in Docker Compose!
 CMD ["lokiunimore.config"]
 
 FROM entrypoint AS labels
