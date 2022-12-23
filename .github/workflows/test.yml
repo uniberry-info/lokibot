@@ -17,7 +17,7 @@ on:
       - "lokiunimore/**"
       - "pyproject.toml"
       - "poetry.lock"
-  # Triggered by a new releaes
+  # Triggered by a new release
   workflow_call:
 
 jobs:
