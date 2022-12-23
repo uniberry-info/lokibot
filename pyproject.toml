@@ -47,7 +47,7 @@ readme = "README.md"
 
 # The URL of the project website.
 # Not the GitHub repository!
-#homepage = "https://example.org/"
+homepage = "https://loki.steffo.eu/"
 
 # The URL of the project repository.
 repository = "https://github.com/Steffo99/lokiunimore"
