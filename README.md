@@ -79,67 +79,6 @@ Run the image with the `lokiunimore.matrix` command to launch the Matrix bot.
 
 ### Using Docker Compose
 
-Create a `docker-compose.yml` file which starts three services:
-- a [`postgres`](https://registry.hub.docker.com/_/postgres) instance
-- a [`ghcr.io/steffo99/lokiunimore`](https://github.com/Steffo99/lokiunimore/pkgs/container/lokiunimore) instance running the webserver via the command `gunicorn -b 0.0.0.0:80 lokiunimore.web.app:rp_app`
-- a [`ghcr.io/steffo99/lokiunimore`](https://github.com/Steffo99/lokiunimore/pkgs/container/lokiunimore) instance running the Matrix bot via the command `lokiunimore.matrix`
+Use the [given Docker Compose file](docker-compose.yml).
 
-Ensure you're configuring all the required environment variables, as Loki Bot will not work otherwise.
-
-<details>
-<summary>Example docker-compose.yml</summary>
-
-```yaml
-version: "3.9"
-
-
-services:
-  # The database Loki uses to store its files
-  lokidb:
-    image: "postgres:14"
-    restart: unless-stopped
-    environment:
-      PGUSER: "loki"
-      PGPASSWORD: "loki"
-      PGDATABASE: "loki"
-      POSTGRES_USER: "loki"
-      POSTGRES_PASSWORD: "loki"
-      POSTGRES_DB: "loki"
-      POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --lc-collate=C --lc-ctype=C'
-      LANG: "C"
-      LC_COLLATE: "C"
-      LC_CTYPE: "C"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    volumes:
-      - "./data/lokidb:/var/lib/postgresql/data"
-
-  # The web server that Loki uses for authentication
-  lokiweb:
-    image: "ghcr.io/steffo99/lokiunimore:latest"
-    command: "gunicorn -b 0.0.0.0:80 lokiunimore.web.app:rp_app"
-    restart: unless-stopped
-    ports:
-      - "80:30035"  # Choose your preferred port
-    env_file:
-      - "./secrets/loki.env"
-    depends_on:
-      lokidb:
-        condition: service_healthy
-
-  # The Matrix bot that Loki uses for user interactions
-  lokibot:
-    image: "ghcr.io/steffo99/lokiunimore:latest"
-    command: "lokiunimore.matrix"
-    restart: unless-stopped
-    env_file:
-      - "./secrets/loki.env"
-    depends_on:
-      lokidb:
-        condition: service_healthy
-```
-
-</details>
+Either use [Portainer](https://www.portainer.io/), or start it manually using `docker compose up -d && docker compose logs -f`.
