@@ -5,7 +5,7 @@ RUN pip install "poetry"
 FROM system AS workdir
 WORKDIR /usr/src/lokiunimore
 
-FROM system AS dependencies
+FROM workdir AS dependencies
 COPY pyproject.toml ./pyproject.toml
 COPY poetry.lock ./poetry.lock
 RUN poetry install --no-root --no-dev
