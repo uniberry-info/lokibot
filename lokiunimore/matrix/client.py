@@ -347,8 +347,12 @@ class LokiClient(ExtendedAsyncClient):
         # Filters allow us to determine the event type in a better way
         event: nio.InviteMemberEvent | nio.RoomMemberEvent
 
+        if event.prev_membership == event.membership:
+            # If the event is a name change, or something like that, don't do anything
+            return
+
         # Catch events about myself immediately
-        if event.state_key == self.user_id:
+        elif event.state_key == self.user_id:
             # If I'm invited to a room, join it
             if event.membership == "invite":
                 await self.__handle_received_invite(room)
