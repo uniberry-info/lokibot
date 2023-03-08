@@ -145,7 +145,7 @@ class ExtendedAsyncClient(nio.AsyncClient):
         token = hmac.new(key=shared_secret.encode("utf8"), msg=self.user.encode("utf8"), digestmod=hashlib.sha512).hexdigest()
 
         await self.login_raw({
-            "type": "com.devture.shared_secret_auth",
+            "type": "x.shared_secret_auth",
             "identifier": {
                 "type": "m.id.user",
                 "user": self.user,
