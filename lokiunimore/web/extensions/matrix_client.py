@@ -22,7 +22,7 @@ class MatrixClientExtension:
         ).hexdigest()
 
         response = requests.post(f"{app.config['MATRIX_HOMESERVER']}/_matrix/client/v3/login", json={
-            "type": "com.devture.shared_secret_auth",
+            "type": "x.shared_secret_auth",
             "identifier": {
                 "type": "m.id.user",
                 "user": app.config["MATRIX_USER_ID"],
