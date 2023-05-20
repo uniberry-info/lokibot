@@ -91,10 +91,10 @@ class MatrixUser(Base):
         :return: The created `.MatrixUser`.
         """
 
-        log.debug(f"Creating MatrixUser for: {id}")
+        log.debug("Creating MatrixUser for %s", id)
         matrix_user = MatrixUser(id=id)
         matrix_user = session.merge(matrix_user)
-        log.debug(f"Created MatrixUser for: {id}")
+        log.debug("Created MatrixUser for %s", id)
         return matrix_user
 
     def destroy(self, session: o.Session) -> None:
@@ -105,11 +105,11 @@ class MatrixUser(Base):
         """
 
         id = self.id
-        log.debug(f"Deleting MatrixUser for: {id}")
+        log.debug("Deleting MatrixUser for %s", id)
         if self.account is not None and len(self.account.matrix_users) == 1:
             session.delete(self.account)
         session.delete(self)
-        log.debug(f"Deleted MatrixUser for: {id}")
+        log.debug("Deleted MatrixUser for %s", id)
 
     # noinspection PyUnusedLocal
     def link(self, session: o.Session, account: Account) -> None:
@@ -130,12 +130,12 @@ class MatrixUser(Base):
         :param session: The `sqlalchemy.orm.Session` to use.
         """
 
-        log.debug("Unlinking account for: %s", self.id)
+        log.debug("Unlinking Account for %s", self.id)
         if len(self.account.matrix_users) == 1:
             session.delete(self.account)
         self.account = None
         self.joined_private_space = False
-        log.debug(f"Unlinked account for: %s", self.id)
+        log.debug("Unlinked Account for %s", self.id)
 
     def profile_url(self) -> str:
         """
