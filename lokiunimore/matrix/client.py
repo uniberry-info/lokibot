@@ -15,7 +15,6 @@ import typing as t
 import functools
 import sqlalchemy
 import sqlalchemy.orm
-import flask
 
 T = t.TypeVar("T")
 log = logging.getLogger(__name__)
