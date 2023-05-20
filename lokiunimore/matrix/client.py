@@ -420,10 +420,13 @@ class LokiClient(ExtendedAsyncClient):
         with self._sqla_session() as session:
             session: sqlalchemy.orm.Session
             matrix_user: MatrixUser = session.query(MatrixUser).get(user_id)
-            matrix_user.joined_private_space = True
-            session.commit()
-            log.debug(f"Set MatrixUser as joined for: {user_id}")
-            token = matrix_user.token
+            if matrix_user is None:
+                log.warning(f"User joined private space without having a pre-existent record in the db: {user_id}")
+            else:
+                matrix_user.joined_private_space = True
+                session.commit()
+                log.debug(f"Set MatrixUser as joined for: {user_id}")
+                token = matrix_user.token
 
         log.debug(f"Notifying user of the account link: {user_id}")
         formatting = dict(
