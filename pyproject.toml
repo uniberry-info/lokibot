@@ -141,7 +141,7 @@ coloredlogs = "^15.0.1"
 psycopg2 = "^2.9.3"
 matrix-nio = "^0.20.1"
 cfig = {extras = ["cli"], version = "^0.3.0"}
-python-dotenv = "^0.21.0"
+python-dotenv = "^1.0.0"
 
 
 
