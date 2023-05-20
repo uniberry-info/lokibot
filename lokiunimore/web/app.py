@@ -135,8 +135,7 @@ def page_oidc_authorize():
 
     if matrix_token := flask.session.pop("matrix_token", None):
         matrix_user = sqla_extension.session.query(MatrixUser).filter_by(token=matrix_token).first_or_404()
-        matrix_user.account = local_account
-
+        matrix_user.link(session=sqla_extension.session, account=local_account)
         sqla_extension.session.commit()
 
         return flask.redirect(flask.url_for("page_matrix_invite", token=matrix_token))

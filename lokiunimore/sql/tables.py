@@ -1,6 +1,10 @@
 import sqlalchemy as s
 import sqlalchemy.orm as o
 import secrets
+import logging
+import flask
+
+log = logging.getLogger(__name__)
 
 
 Base = o.declarative_base()
@@ -76,6 +80,74 @@ class MatrixUser(Base):
 
     def __repr__(self):
         return f"{self.__class__.__qualname__}(id={self.id!r}, token={self.token!r}, account_email={self.account_email!r})"
+
+    @classmethod
+    def create(cls, session: o.Session, id: str) -> "MatrixUser":
+        """
+        Create a `.MatrixUser` in the database for the given Matrix user ID.
+
+        :param session: The `sqlalchemy.orm.Session` to use.
+        :param id: The user ID to create an account for.
+        :return: The created `.MatrixUser`.
+        """
+
+        log.debug(f"Creating MatrixUser for: {id}")
+        matrix_user = MatrixUser(id=id)
+        matrix_user = session.merge(matrix_user)
+        log.debug(f"Created MatrixUser for: {id}")
+        return matrix_user
+
+    def destroy(self, session: o.Session) -> None:
+        """
+        Destroy a `.MatrixUser` in the database.
+
+        :param session: The `sqlalchemy.orm.Session` to use.
+        """
+
+        id = self.id
+        log.debug(f"Deleting MatrixUser for: {id}")
+        if self.account is not None and len(self.account.matrix_users) == 1:
+            session.delete(self.account)
+        session.delete(self)
+        log.debug(f"Deleted MatrixUser for: {id}")
+
+    # noinspection PyUnusedLocal
+    def link(self, session: o.Session, account: Account) -> None:
+        """
+        Link a `.MatrixUser` to an `.Account`.
+
+        :param session: The `sqlalchemy.orm.Session` to use. (Currently unused.)
+        :param account: The `.Account` to link to.
+        """
+        log.debug("Linking MatrixUser %s to Account %s", self.id, account.email)
+        self.account = account
+        log.debug("Linked MatrixUser %s to Account %s", self.id, account.email)
+
+    def unlink(self, session: o.Session) -> None:
+        """
+        Unlink a `.MatrixUser` from an `.Account`, deleting the `.Account` if it has no other connected `.MatrixUser`\\ s.
+
+        :param session: The `sqlalchemy.orm.Session` to use.
+        """
+
+        log.debug("Unlinking account for: %s", self.id)
+        if len(self.account.matrix_users) == 1:
+            session.delete(self.account)
+        self.account = None
+        self.joined_private_space = False
+        log.debug(f"Unlinked account for: %s", self.id)
+
+    def profile_url(self) -> str:
+        """
+        Uses the `.token` to get the `~flask.url_for` this `.MatrixUser`'s profile.
+
+        .. warning::
+            Must be called inside a `~flask.Flask.app_context`!
+
+        :return: The URL to this `.MatrixUser`'s profile.
+        """
+
+        return flask.url_for("page_matrix_profile", token=self.token)
 
 
 class MatrixProcessedEvent(Base):

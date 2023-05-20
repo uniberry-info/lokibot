@@ -23,7 +23,8 @@ log = logging.getLogger(__name__)
 from lokiunimore.sql.tables import MatrixUser, MatrixProcessedEvent
 from lokiunimore.utils.device_names import generate_device_name
 from lokiunimore.config import MATRIX_PUBLIC_SPACE_ID, MATRIX_PRIVATE_SPACE_ID, MATRIX_SKIP_EVENTS
-from lokiunimore.matrix.templates.messages import WELCOME_MESSAGE_TEXT, WELCOME_MESSAGE_HTML, SUCCESS_MESSAGE_TEXT, SUCCESS_MESSAGE_HTML, GOODBYE_MESSAGE_TEXT, GOODBYE_MESSAGE_HTML, UNLINK_MESSAGE_TEXT, UNLINK_MESSAGE_HTML
+from lokiunimore.matrix.templates.messages import WELCOME_MESSAGE_TEXT, WELCOME_MESSAGE_HTML, SUCCESS_MESSAGE_TEXT, SUCCESS_MESSAGE_HTML, GOODBYE_MESSAGE_TEXT, \
+    GOODBYE_MESSAGE_HTML, UNLINK_MESSAGE_TEXT, UNLINK_MESSAGE_HTML
 from lokiunimore.web.app import app
 
 
@@ -337,11 +338,6 @@ class LokiClient(ExtendedAsyncClient):
             session.commit()
             return mpe
 
-    @staticmethod
-    def _loki_web_profile(token: str):
-        with app.app_context():
-            return flask.url_for("page_matrix_profile", token=token)
-
     @filter_processed_events
     async def __handle_membership_change(self, room: nio.MatrixRoom, event: nio.Event) -> None:
         # Filters allow us to determine the event type in a better way
@@ -389,21 +385,18 @@ class LokiClient(ExtendedAsyncClient):
     async def __handle_public_space_joiner(self, user_id: str):
         log.debug(f"User joined public space: {user_id}")
 
-        log.debug(f"Creating MatrixUser for: {user_id}")
         with self._sqla_session() as session:
             session: sqlalchemy.orm.Session
-            matrix_user = MatrixUser(id=user_id)
-            matrix_user = session.merge(matrix_user)
+            matrix_user: MatrixUser = MatrixUser.create(session=session, id=user_id)
             session.commit()
-            log.debug(f"Created MatrixUser for: {user_id}")
-            token = matrix_user.token
 
         log.debug(f"Notifying user of the account creation: {user_id}")
-        formatting = dict(
-            username_text=self.user_id,
-            username_html=await self.mention_html(self.user_id),
-            profile_url=self._loki_web_profile(token),
-        )
+        with app.app_context():
+            formatting = dict(
+                username_text=self.user_id,
+                username_html=await self.mention_html(self.user_id),
+                profile_url=matrix_user.profile_url(),
+            )
         await self.room_send_message_html(
             await self.find_or_create_pm_room(user_id),
             text=WELCOME_MESSAGE_TEXT.format(**formatting),
@@ -426,12 +419,12 @@ class LokiClient(ExtendedAsyncClient):
                 matrix_user.joined_private_space = True
                 session.commit()
                 log.debug(f"Set MatrixUser as joined for: {user_id}")
-                token = matrix_user.token
 
         log.debug(f"Notifying user of the account link: {user_id}")
-        formatting = dict(
-            profile_url=self._loki_web_profile(token),
-        )
+        with app.app_context():
+            formatting = dict(
+                profile_url=matrix_user.profile_url(),
+            )
         await self.room_send_message_html(
             await self.find_or_create_pm_room(user_id),
             text=SUCCESS_MESSAGE_TEXT.format(**formatting),
@@ -451,11 +444,8 @@ class LokiClient(ExtendedAsyncClient):
             if matrix_user is None:
                 log.warning(f"User left public space without having a pre-existent record in the db: {user_id}")
             else:
-                if matrix_user.account is not None and len(matrix_user.account.matrix_users) == 1:
-                    session.delete(matrix_user.account)
-                session.delete(matrix_user)
+                matrix_user.destroy(session=session)
                 session.commit()
-                log.debug(f"Deleted MatrixUser for: {user_id}")
 
         log.debug(f"Notifying user of the account deletion: {user_id}")
         await self.room_send_message_html(
@@ -499,20 +489,15 @@ class LokiClient(ExtendedAsyncClient):
                 return
             elif matrix_user.account is None:
                 log.warning(f"User left private space without having a linked account in the db: {user_id}")
-                token = matrix_user.token
             else:
-                if len(matrix_user.account.matrix_users) == 1:
-                    session.delete(matrix_user.account)
-                matrix_user.account = None
-                matrix_user.joined_private_space = False
+                matrix_user.unlink(session=session)
                 session.commit()
-                log.debug(f"Unlinked account for: {user_id}")
-                token = matrix_user.token
 
         log.debug(f"Notifying user of the account unlinking: {user_id}")
-        formatting = dict(
-            profile_url=self._loki_web_profile(token),
-        )
+        with app.app_context():
+            formatting = dict(
+                profile_url=matrix_user.profile_url(),
+            )
         await self.room_send_message_html(
             await self.find_or_create_pm_room(user_id),
             text=UNLINK_MESSAGE_TEXT.format(**formatting),
