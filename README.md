@@ -76,9 +76,3 @@ Run the image without any command to view and validate the current configuration
 Run the image with the `gunicorn -b 0.0.0.0:80 lokiunimore.web.app:rp_app` command to launch the production web server on local port 80, expecting to be behind a  reverse proxy.
 
 Run the image with the `lokiunimore.matrix` command to launch the Matrix bot.
-
-### Using Docker Compose
-
-Use the [given Docker Compose file](docker-compose.yml).
-
-Either use [Portainer](https://www.portainer.io/), or start it manually using `docker compose up -d && docker compose logs -f`.
