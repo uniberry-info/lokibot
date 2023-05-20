@@ -390,13 +390,14 @@ class LokiClient(ExtendedAsyncClient):
             matrix_user: MatrixUser = MatrixUser.create(session=session, id=user_id)
             session.commit()
 
+            with app.app_context():
+                formatting = dict(
+                    username_text=self.user_id,
+                    username_html=await self.mention_html(self.user_id),
+                    profile_url=matrix_user.profile_url(),
+                )
+
         log.debug(f"Notifying user of the account creation: {user_id}")
-        with app.app_context():
-            formatting = dict(
-                username_text=self.user_id,
-                username_html=await self.mention_html(self.user_id),
-                profile_url=matrix_user.profile_url(),
-            )
         await self.room_send_message_html(
             await self.find_or_create_pm_room(user_id),
             text=WELCOME_MESSAGE_TEXT.format(**formatting),
@@ -422,11 +423,12 @@ class LokiClient(ExtendedAsyncClient):
             session.commit()
             log.debug(f"Set MatrixUser as joined for: {user_id}")
 
+            with app.app_context():
+                formatting = dict(
+                    profile_url=matrix_user.profile_url(),
+                )
+
         log.debug(f"Notifying user of the account link: {user_id}")
-        with app.app_context():
-            formatting = dict(
-                profile_url=matrix_user.profile_url(),
-            )
         await self.room_send_message_html(
             await self.find_or_create_pm_room(user_id),
             text=SUCCESS_MESSAGE_TEXT.format(**formatting),
@@ -495,11 +497,12 @@ class LokiClient(ExtendedAsyncClient):
                 matrix_user.unlink(session=session)
                 session.commit()
 
+            with app.app_context():
+                formatting = dict(
+                    profile_url=matrix_user.profile_url(),
+                )
+
         log.debug(f"Notifying user of the account unlinking: {user_id}")
-        with app.app_context():
-            formatting = dict(
-                profile_url=matrix_user.profile_url(),
-            )
         await self.room_send_message_html(
             await self.find_or_create_pm_room(user_id),
             text=UNLINK_MESSAGE_TEXT.format(**formatting),
