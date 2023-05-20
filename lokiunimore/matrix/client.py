@@ -22,8 +22,7 @@ log = logging.getLogger(__name__)
 from lokiunimore.sql.tables import MatrixUser, MatrixProcessedEvent
 from lokiunimore.utils.device_names import generate_device_name
 from lokiunimore.config import MATRIX_PUBLIC_SPACE_ID, MATRIX_PRIVATE_SPACE_ID, MATRIX_SKIP_EVENTS
-from lokiunimore.matrix.templates.messages import WELCOME_MESSAGE_TEXT, WELCOME_MESSAGE_HTML, SUCCESS_MESSAGE_TEXT, SUCCESS_MESSAGE_HTML, GOODBYE_MESSAGE_TEXT, \
-    GOODBYE_MESSAGE_HTML, UNLINK_MESSAGE_TEXT, UNLINK_MESSAGE_HTML
+from lokiunimore.matrix.templates.messages import WELCOME_MESSAGE_TEXT, WELCOME_MESSAGE_HTML, SUCCESS_MESSAGE_TEXT, SUCCESS_MESSAGE_HTML, GOODBYE_MESSAGE_TEXT, GOODBYE_MESSAGE_HTML, UNLINK_MESSAGE_TEXT, UNLINK_MESSAGE_HTML
 from lokiunimore.web.app import app
 
 
