@@ -17,7 +17,7 @@ client = LokiClient(
 
 async def main():
     await client.login_with_shared_secret(MATRIX_USER_SECRET.__wrapped__)
-    await client.sync_forever(60_000, full_state=True)
+    await client.sync_forever(60_000, full_state=True, set_presence="online")
 
 
 async def cleanup():
