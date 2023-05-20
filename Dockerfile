@@ -1,4 +1,5 @@
-FROM python:3-alpine AS build
+FROM python:3-alpine AS final
+
 RUN apk add --update \
     "build-base" \
     "python3-dev" \
@@ -6,7 +7,7 @@ RUN apk add --update \
     "musl-dev" \
     "libffi-dev" \
     "openssl-dev" \
-    "postgresql-dev" \
+    "libpq-dev" \
     "gcc" \
     "git" \
     "rust" \
@@ -24,6 +25,26 @@ RUN poetry install --no-root --no-dev
 COPY . .
 RUN poetry install
 
+RUN apk del \
+    "build-base" \
+    "python3-dev" \
+    "py3-pip" \
+    "musl-dev" \
+    "libffi-dev" \
+    "openssl-dev" \
+    "libpq-dev" \
+    "gcc" \
+    "git" \
+    "rust" \
+    "cargo" \
+    "pkgconfig"
+
+RUN apk add \
+    "libffi" \
+    "openssl" \
+    "libpq" \
+
+
 ENV PYTHONUNBUFFERED=1
 ENTRYPOINT ["poetry", "run", "python", "-m"]
 # Remember to change the CMD in Docker Compose!
@@ -34,5 +55,3 @@ LABEL org.opencontainers.image.description="Matrix room gatekeeper bot for the u
 LABEL org.opencontainers.image.licenses="AGPL-3.0-or-later"
 LABEL org.opencontainers.image.url="https://github.com/Steffo99/lokiunimore"
 LABEL org.opencontainers.image.authors="Stefano Pigozzi <me@steffo.eu>"
-
-FROM build AS final
