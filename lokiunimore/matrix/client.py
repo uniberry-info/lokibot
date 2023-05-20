@@ -416,6 +416,7 @@ class LokiClient(ExtendedAsyncClient):
             if matrix_user is None:
                 log.warning(f"User joined private space without having a pre-existent record in the db: {user_id}")
                 matrix_user = MatrixUser.create(session=session, id=user_id)
+                session.commit()
 
             matrix_user.joined_private_space = True
             session.commit()
