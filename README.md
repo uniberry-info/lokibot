@@ -1,10 +1,12 @@
 # Loki Bot
 
-Gatekeeper bot for the Unimore Informatica unofficial Matrix space
+Gatekeeper bot for the Unimore Informatica unofficial Matrix space, successor to [Thor Bot](https://github.com/Steffo99/thorunimore).
 
-\[ [**Website**](https://loki.steffo.eu) | [PyPI](https://pypi.org/project/lokiunimore/) \]
-
-> TIP: You may be looking for its predecessor, [Thor Bot](https://github.com/Steffo99/thorunimore).
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Floki.steffo.eu%2F)](https://loki.steffo.eu/)
+ 
+[![On PyPI](https://img.shields.io/pypi/v/lokiunimore)](https://pypi.org/project/lokiunimore/)
+ 
+[![Chat](https://img.shields.io/matrix/loki-bot:ryg.one?server_fqdn=matrix.ryg.one)](https://matrix.to/#/#loki-bot:ryg.one)
 
 ![](lokiunimore/web/static/opengraph.png)
 
