@@ -42,7 +42,7 @@ RUN apk del \
 RUN apk add \
     "libffi" \
     "openssl" \
-    "libpq" \
+    "libpq"
 
 
 ENV PYTHONUNBUFFERED=1
