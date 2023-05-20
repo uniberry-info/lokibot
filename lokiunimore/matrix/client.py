@@ -198,15 +198,15 @@ class ExtendedAsyncClient(nio.AsyncClient):
 
         return rooms
 
-    async def find_or_create_pm_room(self, user_id: str) -> str:
+    async def put_management_room(self, user_id: str) -> str:
         """
-        Find the first available private message room with the given user, or create one if none exist.
+        Find the first available management room with the given user, or create one if none exist.
 
         :param user_id: The user to message.
         :returns: The room id of the created room.
         """
 
-        log.debug(f"Sliding into {user_id}'s PMs...")
+        log.debug(f"Creating a management room for %s", user_id)
 
         for room in self.rooms.values():
             is_dm = "m.direct" in room.tags
@@ -215,16 +215,18 @@ class ExtendedAsyncClient(nio.AsyncClient):
             contains_user_id = user_id in room.users.keys() or user_id in room.invited_users.keys()
 
             if (is_dm or is_group) and has_two_users and contains_user_id:
-                log.debug(f"Found PM room for: {user_id}")
+                log.debug(f"Found existing management room %s for %s", room.room_id, user_id)
                 return room.room_id
+
         else:
-            log.debug(f"Creating new PM room for: {user_id}")
+            log.debug(f"Creating new management room for %s", user_id)
             response = await self.room_create(invite=[user_id], is_direct=True)
-            if isinstance(response, nio.RoomCreateResponse):
-                log.info(f"Created new PM room for: {user_id}")
-                return response.room_id
-            else:
-                raise Exception("Failed to slide into an user's PMs.")
+
+            if not isinstance(response, nio.RoomCreateResponse):
+                raise Exception("Failed to create a management room.")
+
+            log.info(f"Created new managememt room %s for %s", response.room_id, user_id)
+            return response.room_id
 
     async def room_send_message_html(self, room_id: str, text: str, html: str):
         """
@@ -397,7 +399,7 @@ class LokiClient(ExtendedAsyncClient):
 
         log.debug(f"Notifying user of the account creation: {user_id}")
         await self.room_send_message_html(
-            await self.find_or_create_pm_room(user_id),
+            await self.put_management_room(user_id),
             text=WELCOME_MESSAGE_TEXT.format(**formatting),
             html=WELCOME_MESSAGE_HTML.format(**formatting)
         )
@@ -428,7 +430,7 @@ class LokiClient(ExtendedAsyncClient):
 
         log.debug(f"Notifying user of the account link: {user_id}")
         await self.room_send_message_html(
-            await self.find_or_create_pm_room(user_id),
+            await self.put_management_room(user_id),
             text=SUCCESS_MESSAGE_TEXT.format(**formatting),
             html=SUCCESS_MESSAGE_HTML.format(**formatting)
         )
@@ -451,7 +453,7 @@ class LokiClient(ExtendedAsyncClient):
 
         log.debug(f"Notifying user of the account deletion: {user_id}")
         await self.room_send_message_html(
-            await self.find_or_create_pm_room(user_id),
+            await self.put_management_room(user_id),
             text=GOODBYE_MESSAGE_TEXT,
             html=GOODBYE_MESSAGE_HTML
         )
@@ -502,7 +504,7 @@ class LokiClient(ExtendedAsyncClient):
 
         log.debug(f"Notifying user of the account unlinking: {user_id}")
         await self.room_send_message_html(
-            await self.find_or_create_pm_room(user_id),
+            await self.put_management_room(user_id),
             text=UNLINK_MESSAGE_TEXT.format(**formatting),
             html=UNLINK_MESSAGE_HTML.format(**formatting)
         )
