@@ -302,14 +302,14 @@ pycparser = "*"
 
 [[package]]
 name = "cfig"
-version = "0.3.0"
+version = "0.3.1"
 description = "A configuration manager for Python"
 category = "main"
 optional = false
-python-versions = ">=3.10,<4.0"
+python-versions = ">=3.9,<4.0"
 files = [
-    {file = "cfig-0.3.0-py3-none-any.whl", hash = "sha256:47310ec4e57b4f92b79f7ae223619d318d9bd068ed021cb24eb47d4cf55372b3"},
-    {file = "cfig-0.3.0.tar.gz", hash = "sha256:1343e7b5eddbd609a4349826b55498beead0d0e1ae27d53784c30a3749dcbe6b"},
+    {file = "cfig-0.3.1-py3-none-any.whl", hash = "sha256:8c40d5d1e768677d5d7ef31f6a92d6997f04b3ee70a7b8f4621c03eed31cdd24"},
+    {file = "cfig-0.3.1.tar.gz", hash = "sha256:974058cc40762cb28d22801b738fe39fae8d020ef0bb00d7d3a9d840d8cb0786"},
 ]
 
 [package.dependencies]
