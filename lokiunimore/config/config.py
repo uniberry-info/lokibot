@@ -172,6 +172,14 @@ def TELEGRAM_HELP_ROOM_USERNAME(val: str) -> str:
 
 
 @config.required()
+def DISCORD_INVITE_LINK(val: str) -> str:
+    """
+    The invite link to join the Discord guild.
+    """
+    return val
+
+
+@config.required()
 def SQLALCHEMY_DATABASE_URL(val: str) -> sqlalchemy.engine.URL:
     """
     The URL of the database to store data in.
