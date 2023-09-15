@@ -117,6 +117,24 @@ def MATRIX_HELP_ROOM_ALIAS(val: str) -> str:
 
 
 @config.required()
+def TELEGRAM_APP_ID(val: str) -> int:
+    """
+    The app id to use for logging in to the Telegram servers.
+    https://my.telegram.org/apps
+    """
+    return int(val)
+
+
+@config.required()
+def TELEGRAM_APP_SECRET(val: str) -> str:
+    """
+    The app secret to use for logging in to the Telegram servers.
+    https://my.telegram.org/apps
+    """
+    return val
+
+
+@config.required()
 def TELEGRAM_BOT_TOKEN(val: str) -> str:
     """
     The token to use for logging in to the Telegram servers.
