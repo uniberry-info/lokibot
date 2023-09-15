@@ -1,7 +1,7 @@
 {% extends "_base.html" %}
 
-{% block title_tab %}{{ user.id }}{% endblock %}
-{% block title_main %}<code>{{ user.id }}</code>{% endblock %}
+{% block title_tab %}{{ user.id }} - Telegram{% endblock %}
+{% block title_main %}Telegram · <code>{{ user.id }}</code>{% endblock %}
 
 {% block content %}
     <div>
@@ -18,13 +18,13 @@
 		<p>
 			Puoi entrare nelle <b>chat <i>Uniberry Studenti</i></b> attraverso i seguenti link:
 		</p>
-		{% for key, value in config.TELEGRAM_PRIVATE_JOIN_LINKS.entries() %}
+		{% for key, value in config.TELEGRAM_PRIVATE_JOIN_LINKS.items() %}
 			<p class="center xl">
 				<a href="{{ value }}" class="btn">{{ key }}</a>
 			</p>
 		{% endfor %}
 		<p>
-			<b>Non condividere quei link con nessun altro</b>: chiunque entrerà nelle chat senza aver completato la procedura di verifica sarà automaticamente bandito da Loki!
+			<b>Non condividere quei link con nessun altro</b>!
 		</p>
 	</div>
     <hr/>
