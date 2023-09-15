@@ -169,6 +169,8 @@ class TelegramUser(Base):
     Has an associated token, which allows it to authenticate with Loki.
     """
 
+    __tablename__ = "telegram_users"
+
     id = s.Column(s.BigInteger, primary_key=True)
     """
     The Telegram id of the user.
