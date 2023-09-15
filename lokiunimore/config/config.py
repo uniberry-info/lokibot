@@ -13,6 +13,14 @@ config = cfig.Configuration()
 
 
 @config.required()
+def ADMIN_EMAIL(val: str) -> str:
+    """
+    The email of Loki Bot's administrator.
+    """
+    return val
+
+
+@config.required()
 def MATRIX_HOMESERVER(val: str) -> str:
     """
     The Matrix homeserver to connect to.
@@ -105,6 +113,39 @@ def MATRIX_HELP_ROOM_ALIAS(val: str) -> str:
         raise ValueError("Room aliases must start with `#`")
     if ":" not in val:
         raise ValueError("Room aliases must contain the `:` localpart-server separator")
+    return val
+
+
+@config.required()
+def TELEGRAM_BOT_TOKEN(val: str) -> str:
+    """
+    The token to use for logging in to the Telegram servers.
+    https://t.me/@BotFather
+    """
+    if ":" not in val:
+        raise ValueError("Bot tokens must contain the `:` id-token separator")
+    return val
+
+
+@config.required()
+def TELEGRAM_BOT_USERNAME(val: str) -> str:
+    """
+    The username of the Telegram bot to contact for registration and verification.
+    For example, `@uniberry_loki_bot`.
+    """
+    if not val.startswith("@"):
+        raise ValueError("Bot usernames must start with `@`")
+    return val
+
+
+@config.required()
+def TELEGRAM_HELP_ROOM_USERNAME(val: str) -> str:
+    """
+    The group username of the public Telegram group to request assistance in, to display in various parts of the bot.
+    For example, `@unimore_chat_help`.
+    """
+    if not val.startswith("@"):
+        raise ValueError("Group usernames must start with `@`")
     return val
 
 

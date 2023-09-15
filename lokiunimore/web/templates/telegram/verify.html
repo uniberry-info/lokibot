@@ -1,0 +1,46 @@
+{% extends "_base.html" %}
+
+{% block title_tab %}{{ user.id }}{% endblock %}
+{% block title_main %}<code>{{ user.id }}</code>{% endblock %}
+
+{% block content %}
+    <div>
+        <p>
+            Per <b>ottenere accesso alle chat <i>Uniberry Studenti</i></b>, collega il tuo account Unimore al tuo account Telegram:
+        </p>
+        <p class="center xl">
+            <a href="{{ url_for("page_telegram_link", token=token) }}" class="btn">Collega account</a><br/>
+        </p>
+    </div>
+    <hr/>
+    <div>
+        <details>
+            <summary>Hai bisogno di aiuto?</summary>
+            <p>
+                Richiedi assistenza nella chat Telegram dedicata:
+            </p>
+            <p class="center xl">
+                <a href="https://t.me/{{ config.TELEGRAM_HELP_ROOM_USERNAME }}" class="btn">
+                    <code>{{ config.TELEGRAM_HELP_ROOM_USERNAME }}</code>
+                </a>
+            </p>
+        </details>
+        <details>
+            <summary>Come sono gestiti i miei dati?</summary>
+            <p>
+                Leggi la politica per la privacy di Loki per scoprirlo:
+            </p>
+            <p class="center xl">
+                <a href="{{ url_for("page_privacy") }}" class="btn">
+                    Politica per la privacy
+                </a>
+            </p>
+        </details>
+        <details>
+            <summary>Vuoi eliminare i tuoi dati da Loki?</summary>
+            <p>
+                Puoi eliminare tutti i tuoi dati da Loki <b>inviando il comando <code>/destroy</code> a <a href="https://t.me/{{ config.TELEGRAM_BOT_USERNAME }}"></a></b> da un client Telegram, oppure, se il tuo account Telegram non esiste più, contattando <a href="mailto:{{ config.ADMIN_EMAIL }}">{{ config.ADMIN_EMAIL }}</a>.
+            </p>
+        </details>
+    </div>
+{% endblock %}

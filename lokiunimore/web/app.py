@@ -9,7 +9,7 @@ import requests
 
 from lokiunimore.config import config, FLASK_SECRET_KEY, SQLALCHEMY_DATABASE_URL, FLASK_SERVER_NAME, FLASK_APPLICATION_ROOT, FLASK_PREFERRED_URL_SCHEME
 from lokiunimore.sql.tables import Base as TableDeclarativeBase
-from lokiunimore.sql.tables import Account, MatrixUser
+from lokiunimore.sql.tables import Account, MatrixUser, TelegramUser
 from lokiunimore.web.extensions.matrix_client import MatrixClientExtension
 
 
@@ -84,10 +84,26 @@ def page_matrix_profile(token):
         return flask.render_template("matrix/complete.html", user=user, token=token)
 
 
+@app.route("/telegram/<token>/")
+def page_telegram_profile(token):
+    user: TelegramUser = sqla_extension.session.query(TelegramUser).filter_by(token=token).first_or_404()
+    if user.account is None:
+        return flask.render_template("telegram/verify.html", user=user, token=token)
+    else:
+        return flask.render_template("telegram/complete.html", user=user, token=token)
+
+
 @app.route("/matrix/<token>/link")
 def page_matrix_link(token):
     sqla_extension.session.query(MatrixUser).filter_by(token=token).first_or_404()
     flask.session["matrix_token"] = token
+    return oauth_extension.oidc.authorize_redirect(flask.url_for("page_oidc_authorize", _external=True))
+
+
+@app.route("/telegram/<token>/link")
+def page_telegram_link(token):
+    sqla_extension.session.query(TelegramUser).filter_by(token=token).first_or_404()
+    flask.session["telegram_token"] = token
     return oauth_extension.oidc.authorize_redirect(flask.url_for("page_oidc_authorize", _external=True))
 
 
@@ -139,6 +155,13 @@ def page_oidc_authorize():
         sqla_extension.session.commit()
 
         return flask.redirect(flask.url_for("page_matrix_invite", token=matrix_token))
+
+    elif telegram_token := flask.session.pop("telegram_token", None):
+        telegram_user = sqla_extension.session.query(TelegramUser).filter_by(token=telegram_token).first_or_404()
+        telegram_user.link(session=sqla_extension.session, account=local_account)
+        sqla_extension.session.commit()
+
+        return flask.redirect(flask.url_for("page_telegram_invite", token=telegram_token))
 
     else:
         return flask.render_template("errors/no-link.html"), 403
