@@ -111,8 +111,9 @@ classifiers = [
 # If you are building a library, comment this.
 # If you are building an application, replace PACKAGE-NAME and PACKAGE_NAME with your package name in kebab-case and snake_case respectively.
 
-lokiunimore = "lokiunimore.__main__:main"
-
+lokiunimore-config = "lokiunimore.config.__main__:main"
+lokiunimore-matrix = "lokiunimore.matrix.__main__:main"
+lokiunimore-web-debug = "lokiunimore.web.__main__:main"
 
 
 [tool.poetry.dependencies]
