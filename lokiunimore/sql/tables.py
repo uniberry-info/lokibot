@@ -186,7 +186,7 @@ class TelegramUser(Base):
     If the user linked a OpenID Connect account, its email.
     """
 
-    account = o.relationship("Account", back_populates="matrix_users")
+    account = o.relationship("Account", back_populates="telegram_users")
     """
     The account linked with this Telegram user.
     """
