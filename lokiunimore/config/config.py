@@ -126,9 +126,9 @@ def TELEGRAM_APP_ID(val: str) -> int:
 
 
 @config.required()
-def TELEGRAM_APP_SECRET(val: str) -> str:
+def TELEGRAM_APP_HASH(val: str) -> str:
     """
-    The app secret to use for logging in to the Telegram servers.
+    The app hash to use for logging in to the Telegram servers.
     https://my.telegram.org/apps
     """
     return val
@@ -317,7 +317,7 @@ __all__ = (
     "MATRIX_PRIVATE_SPACE_ID",
     "MATRIX_HELP_ROOM_ALIAS",
     "TELEGRAM_APP_ID",
-    "TELEGRAM_APP_SECRET",
+    "TELEGRAM_APP_HASH",
     "TELEGRAM_SESSION_NAME",
     "TELEGRAM_BOT_TOKEN",
     "TELEGRAM_BOT_USERNAME",
