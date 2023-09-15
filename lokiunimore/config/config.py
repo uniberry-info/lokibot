@@ -147,11 +147,17 @@ def TELEGRAM_PUBLIC_JOIN_LINK(val: str) -> str:
 
 
 @config.required()
-def TELEGRAM_PRIVATE_JOIN_LINK(val: str) -> str:
+def TELEGRAM_PRIVATE_JOIN_LINKS(val: str) -> dict:
     """
-    The link to join the private Telegram chats.
+    A `>` and `|` separated map linking titles to links to join lists of private Telegram chats.
+    Example: `Public>https://public.example|Private>https://private.example`
     """
-    return val
+    mapping = dict()
+    entries = val.split("|")
+    for entry in entries:
+        key, value = entry.split(">")
+        mapping[key] = value
+    return mapping
 
 
 @config.required()
