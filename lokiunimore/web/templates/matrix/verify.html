@@ -4,9 +4,15 @@
 {% block title_main %}<code>{{ user.id }}</code>{% endblock %}
 
 {% block content %}
+	<div>
+		<p>
+			Il tuo account Telegram non è collegato ad un account Unimore.
+		</p>
+	</div>
+	<hr/>
     <div>
         <p>
-            Per <b>ottenere accesso allo spazio <i>Unimore Studenti</i></b>, collega il tuo account Studenti@Unimore al tuo account Matrix:
+            Per <b>ottenere accesso allo spazio <i>Uniberry Studenti</i></b>, collega il tuo account Unimore al tuo account Matrix:
         </p>
         <p class="center xl">
             <a href="{{ url_for("page_matrix_link", token=token) }}" class="btn">Collega account</a><br/>

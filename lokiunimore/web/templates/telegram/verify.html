@@ -4,14 +4,29 @@
 {% block title_main %}<code>{{ user.id }}</code>{% endblock %}
 
 {% block content %}
-    <div>
-        <p>
-            Per <b>ottenere accesso alle chat <i>Uniberry Studenti</i></b>, collega il tuo account Unimore al tuo account Telegram:
-        </p>
-        <p class="center xl">
-            <a href="{{ url_for("page_telegram_link", token=token) }}" class="btn">Collega account</a><br/>
-        </p>
-    </div>
+	<div>
+		<p>
+			Il tuo account Telegram non è collegato ad un account Unimore.
+		</p>
+	</div>
+	<hr/>
+	<div>
+		<p>
+			Per ottenere accesso alle <b>chat <i>Uniberry Studenti</i></b>, collega il tuo account Unimore al tuo account Telegram:
+		</p>
+		<p class="center xl">
+			<a href="{{ url_for("page_telegram_link", token=token) }}" class="btn">Collega account</a><br/>
+		</p>
+	</div>
+	<hr/>
+	<div>
+		<p>
+			Puoi entrare nelle <b>chat pubbliche <i>Uniberry</i></b> attraverso il seguente link:
+		</p>
+		<p class="center xl">
+			<a href="https://t.me/{{ config.TELEGRAM_PUBLIC_JOIN_LINK }}" class="btn"><code>{{ config.TELEGRAM_PUBLIC_JOIN_LINK }}</code></a>
+		</p>
+	</div>
     <hr/>
     <div>
         <details>

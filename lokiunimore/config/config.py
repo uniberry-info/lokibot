@@ -139,6 +139,22 @@ def TELEGRAM_BOT_USERNAME(val: str) -> str:
 
 
 @config.required()
+def TELEGRAM_PUBLIC_JOIN_LINK(val: str) -> str:
+    """
+    The link to join the public Telegram chats.
+    """
+    return val
+
+
+@config.required()
+def TELEGRAM_PRIVATE_JOIN_LINK(val: str) -> str:
+    """
+    The link to join the private Telegram chats.
+    """
+    return val
+
+
+@config.required()
 def TELEGRAM_HELP_ROOM_USERNAME(val: str) -> str:
     """
     The group username of the public Telegram group to request assistance in, to display in various parts of the bot.

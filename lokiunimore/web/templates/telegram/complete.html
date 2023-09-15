@@ -13,20 +13,27 @@
             <code>{{ user.account.email }}</code>
         </p>
     </div>
-    <hr/>
-    <div>
-        <p>
-            Puoi entrare nelle chat Uniberry Studenti attraverso il seguente link:
-        </p>
+	<hr/>
+	<div>
+		<p>
+			Puoi entrare nelle <b>chat <i>Uniberry Studenti</i></b> attraverso il seguente link:
+		</p>
 		<p class="center xl">
-			<a href="https://t.me/{{ config.TELEGRAM_JOIN_LINK }}" class="btn">
-				<code>{{ config.TELEGRAM_JOIN_LINK }}</code>
-			</a>
+			<a href="https://t.me/{{ config.TELEGRAM_PRIVATE_JOIN_LINK }}" class="btn">Chat studenti</a>
 		</p>
 		<p>
 			<b>Non condividere quel link con nessun altro</b>: chiunque entrerà nelle chat senza aver completato la procedura di verifica sarà automaticamente bandito da Loki!
 		</p>
-    </div>
+	</div>
+    <hr/>
+	<div>
+		<p>
+			Puoi entrare nelle <b>chat pubbliche <i>Uniberry</i></b> attraverso il seguente link:
+		</p>
+		<p class="center xl">
+			<a href="https://t.me/{{ config.TELEGRAM_PUBLIC_JOIN_LINK }}" class="btn">Chat pubbliche</a>
+		</p>
+	</div>
     <hr/>
     <div>
 		<details>
