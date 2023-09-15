@@ -1,3 +1,7 @@
+"""
+Module listing all configurable variables.
+"""
+
 import re
 import cfig
 import sqlalchemy.engine
@@ -20,6 +24,7 @@ def MATRIX_HOMESERVER(val: str) -> str:
 def MATRIX_USER_ID(val: str) -> str:
     """
     The full user ID of the Matrix account to login as.
+    For example, `@bot_loki:uniberry.info`.
     https://spec.matrix.org/latest/#users
     """
     if not val.startswith("@"):
@@ -51,6 +56,7 @@ def MATRIX_SKIP_EVENTS(val: str | None) -> bool:
 def MATRIX_PUBLIC_SPACE_ID(val: str) -> str:
     """
     The room ID of the public Matrix space to monitor.
+    For example, `!abcdef:uniberry.info`.
     https://spec.matrix.org/latest/#room-structure
     """
     if not val.startswith("!"):
@@ -64,6 +70,7 @@ def MATRIX_PUBLIC_SPACE_ID(val: str) -> str:
 def MATRIX_PUBLIC_SPACE_ALIAS(val: str) -> str:
     """
     The room alias of the public Matrix space to display in various parts of the bot.
+    For example, `#unimore:uniberry.info`.
     https://spec.matrix.org/latest/#room-aliases
     """
     if not val.startswith("#"):
@@ -77,6 +84,7 @@ def MATRIX_PUBLIC_SPACE_ALIAS(val: str) -> str:
 def MATRIX_PRIVATE_SPACE_ID(val: str) -> str:
     """
     The room ID of the private Matrix space to monitor and add users to.
+    For example, `!fedcba:uniberry.info`.
     https://spec.matrix.org/latest/#room-structure
     """
     if not val.startswith("!"):
@@ -90,6 +98,7 @@ def MATRIX_PRIVATE_SPACE_ID(val: str) -> str:
 def MATRIX_HELP_ROOM_ALIAS(val: str) -> str:
     """
     The room alias of the public Matrix room to request assistance in, to display in various parts of the bot.
+    For example, `#unimore_matrix:uniberry.info`.
     https://spec.matrix.org/latest/#room-aliases
     """
     if not val.startswith("#"):
@@ -121,7 +130,7 @@ def FLASK_SECRET_KEY(val: str) -> str:
 def FLASK_SERVER_NAME(val: str) -> str:
     """
     The hostname of the server where the Flask webserver is available at.
-    For example, `loki.steffo.eu`.
+    For example, `uniberry.info`.
     """
     return val
 
