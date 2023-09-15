@@ -13,7 +13,7 @@ config = cfig.Configuration()
 
 
 @config.required()
-def ADMIN_EMAIL(val: str) -> str:
+def LOKI_EMAIL(val: str) -> str:
     """
     The email of Loki Bot's administrator.
     """
