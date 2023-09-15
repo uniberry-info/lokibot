@@ -135,6 +135,15 @@ def TELEGRAM_APP_SECRET(val: str) -> str:
 
 
 @config.required()
+def TELEGRAM_SESSION_NAME(val: str) -> str:
+    """
+    Name to associate to the session of this Telegram client.
+    https://docs.telethon.dev/en/stable/concepts/sessions.html
+    """
+    return val
+
+
+@config.required()
 def TELEGRAM_BOT_TOKEN(val: str) -> str:
     """
     The token to use for logging in to the Telegram servers.
