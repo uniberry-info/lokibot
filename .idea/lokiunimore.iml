@@ -6,6 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/lokiunimore/web/static" type="java-resource" />
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
       <excludeFolder url="file://$MODULE_DIR$/session" />
+      <excludeFolder url="file://$MODULE_DIR$/dist" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
