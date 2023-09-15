@@ -131,10 +131,8 @@ def TELEGRAM_BOT_TOKEN(val: str) -> str:
 def TELEGRAM_BOT_USERNAME(val: str) -> str:
     """
     The username of the Telegram bot to contact for registration and verification.
-    For example, `@uniberry_loki_bot`.
+    For example, `uniberry_loki_bot`.
     """
-    if not val.startswith("@"):
-        raise ValueError("Bot usernames must start with `@`")
     return val
 
 
@@ -164,10 +162,8 @@ def TELEGRAM_PRIVATE_JOIN_LINKS(val: str) -> dict:
 def TELEGRAM_HELP_ROOM_USERNAME(val: str) -> str:
     """
     The group username of the public Telegram group to request assistance in, to display in various parts of the bot.
-    For example, `@unimore_chat_help`.
+    For example, `unimore_chat_help`.
     """
-    if not val.startswith("@"):
-        raise ValueError("Group usernames must start with `@`")
     return val
 
 

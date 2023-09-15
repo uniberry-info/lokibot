@@ -161,7 +161,7 @@ def page_oidc_authorize():
         telegram_user.link(session=sqla_extension.session, account=local_account)
         sqla_extension.session.commit()
 
-        return flask.redirect(flask.url_for("page_telegram_invite", token=telegram_token))
+        return flask.redirect(flask.url_for("page_telegram_link", token=telegram_token))
 
     else:
         return flask.render_template("errors/no-link.html"), 403

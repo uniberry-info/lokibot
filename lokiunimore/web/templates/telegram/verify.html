@@ -24,7 +24,7 @@
 			Puoi entrare nelle <b>chat pubbliche <i>Uniberry</i></b> attraverso il seguente link:
 		</p>
 		<p class="center xl">
-			<a href="{{ config.TELEGRAM_PUBLIC_JOIN_LINK }}" class="btn"><code>{{ config.TELEGRAM_PUBLIC_JOIN_LINK }}</code></a>
+			<a href="{{ config.TELEGRAM_PUBLIC_JOIN_LINK }}" class="btn">Chat pubbliche</a>
 		</p>
 	</div>
     <hr/>
@@ -32,12 +32,7 @@
         <details>
             <summary>Hai bisogno di aiuto?</summary>
             <p>
-                Richiedi assistenza nella chat Telegram dedicata:
-            </p>
-            <p class="center xl">
-                <a href="https://t.me/{{ config.TELEGRAM_HELP_ROOM_USERNAME }}" class="btn">
-                    <code>{{ config.TELEGRAM_HELP_ROOM_USERNAME }}</code>
-                </a>
+				Richiedi assistenza nella <a href="https://t.me/{{ config.TELEGRAM_HELP_ROOM_USERNAME }}">chat Telegram dedicata</a>, oppure contatta <a href="mailto:{{ config.LOKI_EMAIL }}">{{ config.LOKI_EMAIL }}</a>.
             </p>
         </details>
         <details>
