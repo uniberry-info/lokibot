@@ -2,7 +2,7 @@ import asyncio
 
 from lokiunimore.utils.logs import install_log_handler
 from lokiunimore.matrix.client import LokiClient
-from lokiunimore.config import MATRIX_USER_SECRET, MATRIX_HOMESERVER, MATRIX_USER_ID, SQLALCHEMY_DATABASE_URL
+from lokiunimore.config import config, MATRIX_USER_SECRET, MATRIX_HOMESERVER, MATRIX_USER_ID, SQLALCHEMY_DATABASE_URL
 
 
 def main():
@@ -29,4 +29,5 @@ def main():
 
 
 if __name__ == "__main__":
+    config.proxies.resolve()
     main()

@@ -17,6 +17,7 @@
       <list>
         <option value="$MODULE_DIR$/lokiunimore/web/templates" />
         <option value="$MODULE_DIR$/lokiunimore/matrix/templates" />
+        <option value="$MODULE_DIR$/lokiunimore/telegram/templates" />
       </list>
     </option>
   </component>

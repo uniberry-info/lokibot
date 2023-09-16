@@ -1,5 +1,6 @@
 import flask.logging
 import lokiunimore.utils.logs
+from lokiunimore.config import config
 
 from .app import app
 
@@ -12,4 +13,5 @@ def main():
 
 
 if __name__ == "__main__":
+    config.proxies.resolve()
     main()

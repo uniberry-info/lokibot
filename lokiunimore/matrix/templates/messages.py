@@ -1,7 +1,7 @@
 # ==================================== #
 
 WELCOME_MESSAGE_TEXT = """
-ℹ️ Benvenuto allo spazio Matrix dell'Unimore!
+ℹ️ Benvenuto a Uniberry!
 
 Sono {username_text}, il bot che verifica le credenziali degli utenti che entrano e permette loro di accedere alle rispettive aree.
 
