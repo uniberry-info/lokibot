@@ -7,6 +7,8 @@
 
 # Add your own ignores here!
 
+*.session
+*.session-journal
 
 ##################
 # Python ignores #
